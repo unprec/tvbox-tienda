@@ -79,7 +79,7 @@
   .diff-col.bad .ditem-dot { background: var(--bad); opacity: 0.5; }
   .diff-col.good .ditem-dot { background: var(--good); }
 
-  #productos { padding: 1rem 2rem 4rem; max-width: 960px; margin: 0 auto; }
+  #productos { padding: 1rem 2rem 4rem; max-width: 960px; margin: 0 auto; text-align: center; }
   .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, min(100%, 380px))); gap: 16px; margin-top: 2rem; justify-content: center; }
   .pcard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s; }
   .pcard:hover { border-color: rgba(255,107,26,0.3); transform: translateY(-2px); }
@@ -163,8 +163,8 @@
 </div>
 
 <div id="productos">
-  <div class="section-label">Catálogo</div>
-  <div class="section-title">Elige tu equipo</div>
+  <div class="section-label" style="text-align:center;">Catálogo</div>
+  <div class="section-title" style="text-align:center;">Elige tu equipo</div>
   <div class="products-grid" id="products-grid">
     <div class="no-products">Cargando productos...</div>
   </div>
