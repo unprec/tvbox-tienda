@@ -470,7 +470,7 @@ function renderList() {
         <div class="prod-card-name">${p.name}</div>
         <div class="prod-card-actions">
           <span class="stock-badge ${stock>0?'ok':'out'}" id="sb-${p.id}">${stock>0?'En stock · '+stock+' uds.':'Sin stock'}</span>
-          ${products.length > 1 ? `<button class="btn-del" onclick="removeProduct(${p.id})">Eliminar</button>` : ''}
+          ${products.length > 1 ? '<button class="btn-del" onclick="removeProduct('+p.id+')">Eliminar</button>' : ''}
         </div>
       </div>
       <div class="fields-grid">
@@ -653,7 +653,7 @@ function renderHistorial() {
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr>
-          ${['Fecha','Vendedor','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;">${h}</th>`).join('')}
+          ${['Fecha','Vendedor','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>'<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;">'+h+'</th>').join('')}
         </tr>
       </thead>
       <tbody>
@@ -674,13 +674,14 @@ function renderHistorial() {
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:${anulada?'var(--muted)':'var(--good)'};font-weight:500;${anulada?'text-decoration:line-through;':''};">${fmt(v.monto||0)}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);">
               ${anulada
-                ? `<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>
-                   ${v.observacion ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${v.observacion}</div>` : ''}`
+                ? '<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'
+                  + (v.observacion ? '<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>' : '')
                 : '<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>'}
             </td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);">
-              ${!anulada ? `<button data-action="anular" data-index="${i}" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>` : ''}
+              ${!anulada ? '<button data-action="anular" data-index="'+i+'" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>' : ''}
             </td>
+          </tr>`;
         }).join('')}
       </tbody>
     </table>`;
