@@ -334,6 +334,7 @@ async function doLogin() {
   const pass = document.getElementById('pw-input').value;
   const creds = await getCredentials();
   if (user === creds.user && pass === creds.pass) {
+    sessionStorage.setItem('tvbox_admin_logged', '1');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-screen').style.display = 'block';
     loadData();
@@ -346,10 +347,17 @@ async function doLogin() {
 
 function logout() {
   if (unsaved && !confirm('Tienes cambios sin guardar. ¿Cerrar sesión de todas formas?')) return;
+  sessionStorage.removeItem('tvbox_admin_logged');
   document.getElementById('admin-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pw-input').value = '';
   localStorage.removeItem('tvbox_backup');
+}
+
+if (sessionStorage.getItem('tvbox_admin_logged')) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  loadData();
 }
 
 let usuarios = [];
@@ -680,7 +688,7 @@ function renderHistorial() {
                 : '<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>'}
             </td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);">
-              ${!anulada ? `<button onclick="anularVenta(${i})" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>` : ''}
+              ${!anulada ? `<button data-action="anular" data-index="${i}" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>` : ''}
             </td>
           </tr>`;
         }).join('')}
@@ -695,10 +703,11 @@ async function anularVenta(index) {
   if (!v || v.anulada) return;
   v.anulada = true;
   v.observacion = observacion || 'Sin observación';
+  const cantidad = v.cantidad || 1;
   const p = products.find(p => p.name === v.producto);
   if (p) {
-    p.stock = (p.stock || 0) + 1;
-    p.vendidos = Math.max(0, (p.vendidos || 0) - 1);
+    p.stock = (p.stock || 0) + cantidad;
+    p.vendidos = Math.max(0, (p.vendidos || 0) - cantidad);
   }
   try {
     await Promise.all([
@@ -739,6 +748,9 @@ document.addEventListener('click', e => {
     const val = parseInt(document.getElementById(`rm-stock-${id}`).value) || 0;
     removeStock(id, val);
     document.getElementById(`rm-stock-${id}`).value = 0;
+  }
+  if (action === 'anular') {
+    anularVenta(parseInt(btn.dataset.index));
   }
 });
 

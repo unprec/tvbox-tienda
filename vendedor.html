@@ -220,6 +220,7 @@ async function doLogin() {
 
   if (match) {
     currentUser = match.user;
+    sessionStorage.setItem('tvbox_vendedor', currentUser);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('main-screen').style.display = 'block';
     document.getElementById('vendedor-nombre').textContent = currentUser;
@@ -233,10 +234,20 @@ async function doLogin() {
 function logout() {
   if (unsubProducts) { unsubProducts(); unsubProducts = null; }
   if (unsubVentas) { unsubVentas(); unsubVentas = null; }
+  sessionStorage.removeItem('tvbox_vendedor');
   document.getElementById('main-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pw-input').value = '';
   currentUser = null;
+}
+
+const savedUser = sessionStorage.getItem('tvbox_vendedor');
+if (savedUser) {
+  currentUser = savedUser;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'block';
+  document.getElementById('vendedor-nombre').textContent = currentUser;
+  loadData();
 }
 
 let unsubProducts = null;
