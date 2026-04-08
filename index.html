@@ -242,6 +242,14 @@ window.openVideo = openVideo;
 window.closeVideoBtn = closeVideoBtn;
 window.closeVideo = closeVideo;
 
+function fmt(n) {
+  return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',minimumFractionDigits:0}).format(Math.round(n));
+}
+function cleanPrice(v) {
+  if (typeof v === 'number') return v;
+  return parseInt(String(v).replace(/\D/g,'')) || 0;
+}
+
 function renderGrid(products, cfg) {
   const grid = document.getElementById('products-grid');
   const wa = (cfg.wa || '56912345678').replace(/[^0-9]/g,'');
@@ -271,7 +279,7 @@ function renderGrid(products, cfg) {
         ${mediaHtml}
         <div class="pname">${p.name}</div>
         <div class="pdesc">${p.desc}</div>
-        <div class="pprice">$${p.price}</div>
+        <div class="pprice">${fmt(cleanPrice(p.price||'0'))}</div>
         <div class="pprice-sub">precio final · envío incluido</div>
         ${videoBtn}
         ${stockBadge}
