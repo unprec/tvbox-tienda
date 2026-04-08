@@ -422,6 +422,16 @@ function updateMetrics() {
     </div>`).join('');
 }
 
+function addStock(id, cantidad) {
+  if (cantidad <= 0) return;
+  const p = products.find(p => p.id === id);
+  if (!p) return;
+  p.stock = (p.stock || 0) + cantidad;
+  const badge = document.getElementById(`sb-${id}`);
+  if (badge) { badge.textContent = p.stock > 0 ? `En stock · ${p.stock} uds.` : 'Sin stock'; badge.className = `stock-badge ${p.stock > 0 ? 'ok' : 'out'}`; }
+  updateMetrics(); markUnsaved();
+}
+
 function addProduct() {
   products.push({ id:nextId++, name:'Nuevo modelo', desc:'Descripción.', price:'0', tag:'amber', featured:false, photos:[], video:'', stock:0, costo:0, vendidos:0 });
   renderList(); updateMetrics(); markUnsaved();
@@ -465,8 +475,9 @@ function renderList() {
           <input type="number" min="0" value="${p.costo??0}" oninput="updateField(${p.id},'costo',parseInt(this.value)||0)">
         </div>
         <div class="field">
-          <label>Stock disponible</label>
-          <input type="number" min="0" value="${stock}" oninput="updateField(${p.id},'stock',parseInt(this.value)||0);document.getElementById('sv-${p.id}').textContent=parseInt(this.value)||0;updateMetrics()">
+          <label>Agregar unidades al stock</label>
+          <input type="number" min="0" value="0" id="add-stock-${p.id}" placeholder="0"
+            onchange="addStock(${p.id}, parseInt(this.value)||0); this.value=0;">
         </div>
         <div class="field field-full">
           <label>Descripción</label>
@@ -681,7 +692,7 @@ async function anularVenta(index) {
 }
 
 window.doLogin=doLogin; window.logout=logout; window.switchTab=switchTab;
-window.addProduct=addProduct; window.removeProduct=removeProduct;
+window.addProduct=addProduct; window.removeProduct=removeProduct; window.addStock=addStock;
 window.updateField=updateField; window.updatePhoto=updatePhoto; window.updateMetrics=updateMetrics;
 window.saveAll=saveAll; window.changePassword=changePassword;
 window.crearUsuario=crearUsuario; window.eliminarUsuario=eliminarUsuario;

@@ -141,7 +141,7 @@
             </div>
             <div class="field">
               <label>Teléfono</label>
-              <input type="text" id="v-telefono" placeholder="+56 9 XXXX XXXX">
+              <input type="text" id="v-telefono" placeholder="+56 9 XXXX XXXX" value="+56">
             </div>
             <div class="field field-full">
               <label>Dirección de envío</label>
@@ -172,7 +172,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDhyUnOAfLaenLwC_5ekkPJjvlhpLg_RS4",
@@ -227,21 +227,30 @@ async function doLogin() {
 }
 
 function logout() {
+  if (unsubProducts) { unsubProducts(); unsubProducts = null; }
+  if (unsubVentas) { unsubVentas(); unsubVentas = null; }
   document.getElementById('main-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pw-input').value = '';
   currentUser = null;
 }
 
-async function loadData() {
-  const [psnap, vsnap] = await Promise.all([
-    getDoc(doc(db, 'tienda', 'productos')),
-    getDoc(doc(db, 'tienda', 'ventas')),
-  ]);
-  products = psnap.exists() ? (psnap.data().lista || []) : [];
-  ventas   = vsnap.exists() ? (vsnap.data().lista || []) : [];
-  renderStock();
-  renderProductSelect();
+let unsubProducts = null;
+let unsubVentas = null;
+
+function loadData() {
+  if (unsubProducts) unsubProducts();
+  if (unsubVentas) unsubVentas();
+
+  unsubProducts = onSnapshot(doc(db, 'tienda', 'productos'), snap => {
+    products = snap.exists() ? (snap.data().lista || []) : [];
+    renderStock();
+    renderProductSelect();
+  });
+
+  unsubVentas = onSnapshot(doc(db, 'tienda', 'ventas'), snap => {
+    ventas = snap.exists() ? (snap.data().lista || []) : [];
+  });
 }
 
 function renderStock() {
@@ -311,7 +320,7 @@ async function registrarVenta() {
     ]);
     msg.className='form-msg ok'; msg.textContent=`✅ Venta de "${p.name}" registrada correctamente.`;
     document.getElementById('v-cliente').value='';
-    document.getElementById('v-telefono').value='';
+    document.getElementById('v-telefono').value='+56';
     document.getElementById('v-direccion').value='';
     document.getElementById('v-comuna').value='';
     renderStock();
