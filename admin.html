@@ -134,10 +134,10 @@
     <div class="login-logo">TV<span>Box</span>Pro</div>
     <div class="login-sub">Panel de administración</div>
     <label class="login-label">Usuario</label>
-    <input type="text" class="login-input" id="user-input" placeholder="admin" onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
+    <input type="text" class="login-input" id="user-input" placeholder="admin">
     <label class="login-label">Contraseña</label>
-    <input type="password" class="login-input" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <input type="password" class="login-input" id="pw-input" placeholder="••••••••">
+    <button class="login-btn" id="login-btn">Entrar</button>
     <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
   </div>
 </div>
@@ -538,6 +538,10 @@ window.addProduct=addProduct; window.removeProduct=removeProduct; window.changeS
 window.updateField=updateField; window.updatePhoto=updatePhoto; window.updateMetrics=updateMetrics;
 window.saveAll=saveAll; window.changePassword=changePassword;
 window.fmt=fmt; window.cleanPrice=cleanPrice;
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('user-input').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('pw-input').focus(); });
+document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 window.addEventListener('beforeunload', e => { if (unsaved) { e.preventDefault(); e.returnValue=''; } });
 </script>
