@@ -496,8 +496,7 @@ function renderList() {
         </div>
         <div class="field">
           <label>Corrección de stock (editar directo)</label>
-          <input type="number" min="0" value="${stock}" 
-            onblur="updateField(${p.id},'stock',parseInt(this.value)||0);document.getElementById('sb-${p.id}').textContent=parseInt(this.value)>0?'En stock · '+(parseInt(this.value))+' uds.':'Sin stock';document.getElementById('sb-${p.id}').className='stock-badge '+(parseInt(this.value)>0?'ok':'out');updateMetrics();markUnsaved();">
+          <input type="number" min="0" value="${stock}" data-action="fix-stock" data-id="${p.id}">
         </div>
         <div class="field field-full">
           <label>Descripción</label>
@@ -746,6 +745,19 @@ document.addEventListener('click', e => {
   if (action === 'anular') {
     anularVenta(parseInt(btn.dataset.index));
   }
+});
+
+document.addEventListener('change', e => {
+  const inp = e.target.closest('[data-action="fix-stock"]');
+  if (!inp) return;
+  const id = parseInt(inp.dataset.id);
+  const val = parseInt(inp.value) || 0;
+  const p = products.find(p => p.id === id);
+  if (!p) return;
+  p.stock = val;
+  const badge = document.getElementById(`sb-${id}`);
+  if (badge) { badge.textContent = val > 0 ? `En stock · ${val} uds.` : 'Sin stock'; badge.className = `stock-badge ${val > 0 ? 'ok' : 'out'}`; }
+  updateMetrics(); markUnsaved();
 });
 
 window.addEventListener('beforeunload', e => { if (unsaved) { e.preventDefault(); e.returnValue=''; } });
