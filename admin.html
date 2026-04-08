@@ -313,7 +313,7 @@ async function doLogin() {
   }
 }
 
-function logout() {
+async function logout() {
   if (unsaved && !await modalConfirm('Tienes cambios sin guardar. ¿Cerrar sesión?')) return;
   sessionStorage.removeItem('tvbox_admin_logged');
   localStorage.removeItem('tvbox_backup');
@@ -381,14 +381,14 @@ function addProduct() {
   renderList(); updateMetrics(); markUnsaved();
 }
 
-function removeProduct(id) {
+async function removeProduct(id) {
   if (products.length<=1) return alert('Debe haber al menos un producto.');
   if (!await modalConfirm('¿Eliminar este producto?', true)) return;
   products = products.filter(p=>p.id!==id);
   renderList(); updateMetrics(); markUnsaved();
 }
 
-function addStock(id) {
+async function addStock(id) {
   const p = products.find(p=>p.id===id);
   if (!p) return;
   const val = parseInt(document.getElementById('add-stock-'+id).value)||0;
