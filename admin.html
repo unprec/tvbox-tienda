@@ -1,244 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — TV Box Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c26;
-    --border: rgba(255,255,255,0.07); --accent: #4f8ef7;
-    --good: #3ecf8e; --bad: #f66; --text: #f0f0f5; --muted: #7a7a90; --amber: #f5a623;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; }
-
-  /* LOGIN */
-  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
-  .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 2.5rem 2rem; width: 100%; max-width: 360px; text-align: center; }
-  .login-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 0.25rem; }
-  .login-logo span { color: var(--accent); }
-  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 2rem; }
-  .login-label { display: block; font-size: 12px; color: var(--muted); text-align: left; margin-bottom: 6px; }
-  .login-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text); font-family: 'DM Sans', sans-serif; margin-bottom: 1rem; outline: none; transition: border-color 0.15s; }
-  .login-input:focus { border-color: rgba(79,142,247,0.4); }
-  .login-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: 9px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
-  .login-btn:hover { opacity: 0.85; }
-  .login-error { font-size: 13px; color: var(--bad); margin-top: 10px; display: none; }
-
-  /* ADMIN */
-  #admin-screen { display: none; }
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
-  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; }
-  .logo span { color: var(--accent); }
-  .nav-right { display: flex; align-items: center; gap: 10px; }
-  .nav-badge { font-size: 11px; background: rgba(79,142,247,0.1); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); padding: 4px 12px; border-radius: 20px; }
-  .btn-logout { font-size: 13px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px 8px; }
-
-  /* TABS */
-  .tabs-wrap { padding: 1.5rem 2rem 0; max-width: 1200px; margin: 0 auto; }
-  .tabs { display: flex; gap: 4px; }
-  .tab { font-size: 14px; font-weight: 500; padding: 9px 20px; border-radius: 9px 9px 0 0; border: 1px solid var(--border); border-bottom: none; cursor: pointer; color: var(--muted); background: var(--surface2); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
-  .tab.active { background: var(--surface); color: var(--text); }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  /* MAIN AREA */
-  .admin-body { max-width: 1200px; margin: 0 auto; padding: 0 2rem 6rem; }
-  .admin-inner { background: var(--surface); border: 1px solid var(--border); border-radius: 0 9px 9px 9px; padding: 1.5rem; }
-
-  /* PRODUCTOS LAYOUT: sidebar + content */
-  .productos-layout { display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
-  @media(max-width: 700px) { .productos-layout { grid-template-columns: 1fr; } }
-
-  /* SIDEBAR MÉTRICAS */
-  .sidebar { display: flex; flex-direction: column; gap: 10px; position: sticky; top: 80px; }
-  .metric-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
-  .metric-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .metric-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
-  .metric-val.green { color: var(--good); }
-  .metric-val.amber { color: var(--amber); }
-  .metric-val.blue { color: var(--accent); }
-  .metric-val.red { color: var(--bad); }
-  .metric-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
-  .sidebar-title { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-
-  /* PRODUCTS */
-  .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 0.25rem; }
-  .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.25rem; }
-  .config-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .config-box label { font-size: 13px; color: var(--muted); white-space: nowrap; }
-  .config-box input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; flex: 1; min-width: 160px; outline: none; }
-
-  .prod-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.25rem; }
-  .prod-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
-  .prod-card.is-featured { border-color: rgba(79,142,247,0.35); }
-  .prod-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; }
-  .prod-card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
-  .prod-card-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .btn-del { font-size: 12px; padding: 5px 12px; background: rgba(255,102,102,0.08); color: var(--bad); border: 1px solid rgba(255,102,102,0.2); border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-  .btn-del:hover { background: rgba(255,102,102,0.15); }
-
-  .stock-ctrl { display: flex; align-items: center; gap: 5px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px 7px; }
-  .stock-btn { width: 24px; height: 24px; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1; }
-  .stock-btn.minus { background: rgba(255,102,102,0.15); color: var(--bad); }
-  .stock-btn.minus:hover { background: rgba(255,102,102,0.3); }
-  .stock-btn.plus { background: rgba(62,207,142,0.15); color: var(--good); }
-  .stock-btn.plus:hover { background: rgba(62,207,142,0.3); }
-  .stock-val { font-size: 14px; font-weight: 500; min-width: 26px; text-align: center; }
-  .stock-badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; }
-  .stock-badge.ok { background: rgba(62,207,142,0.1); color: var(--good); border: 1px solid rgba(62,207,142,0.2); }
-  .stock-badge.out { background: rgba(255,102,102,0.1); color: var(--bad); border: 1px solid rgba(255,102,102,0.2); }
-
-  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  @media(max-width:500px){ .fields-grid { grid-template-columns: 1fr; } }
-  .field-full { grid-column: 1 / -1; }
-  .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
-  .field input, .field select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.15s; }
-  .field input:focus, .field select:focus { border-color: rgba(79,142,247,0.4); }
-  .field select option { background: #1c1c26; }
-  .featured-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-  .featured-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
-  .featured-row label { font-size: 13px; color: var(--muted); cursor: pointer; }
-
-  .btn-add-product { width: 100%; background: none; border: 1px dashed rgba(79,142,247,0.3); border-radius: 12px; padding: 13px; color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: background 0.15s; }
-  .btn-add-product:hover { background: rgba(79,142,247,0.05); }
-
-  /* CONFIG */
-  .change-pw { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 2rem; }
-  .change-pw-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--muted); }
-  .pw-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .pw-row input { flex: 1; min-width: 140px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; }
-  .btn-pw { font-size: 13px; padding: 9px 18px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-  .pw-msg { font-size: 12px; margin-top: 8px; }
-  .pw-msg.ok { color: var(--good); }
-  .pw-msg.err { color: var(--bad); }
-
-  /* SAVE BAR */
-  .save-bar { position: sticky; bottom: 0; background: rgba(10,10,15,0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; z-index: 50; }
-  .save-status { font-size: 13px; color: var(--muted); }
-  .save-status.saved { color: var(--good); }
-  .save-actions { display: flex; gap: 10px; }
-  .btn-preview { font-size: 14px; padding: 10px 20px; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; display: inline-flex; align-items: center; }
-  .btn-preview:hover { color: var(--text); }
-  .btn-save { font-size: 14px; font-weight: 500; padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-  .btn-save:hover { opacity: 0.85; }
-</style>
-</head>
-<body>
-
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">TV<span>Box</span>Pro</div>
-    <div class="login-sub">Panel de administración</div>
-    <label class="login-label">Usuario</label>
-    <input type="text" class="login-input" id="user-input" placeholder="admin" onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()">
-    <label class="login-label">Contraseña</label>
-    <input type="password" class="login-input" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Entrar</button>
-    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div id="admin-screen">
-  <nav>
-    <div class="logo">TV<span>Box</span>Pro <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:6px;">admin</span></div>
-    <div class="nav-right">
-      <span class="nav-badge">Panel privado</span>
-      <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
-    </div>
-  </nav>
-
-  <div class="tabs-wrap">
-    <div class="tabs">
-      <button class="tab active" id="tab-btn-productos" onclick="switchTab('productos',this)">📦 Productos</button>
-      <button class="tab" id="tab-btn-config" onclick="switchTab('config',this)">⚙️ Configuración</button>
-    </div>
-  </div>
-
-  <div class="admin-body">
-    <div class="admin-inner">
-
-      <!-- TAB PRODUCTOS -->
-      <div class="tab-content active" id="tab-productos">
-        <div class="productos-layout">
-
-          <!-- SIDEBAR -->
-          <div class="sidebar" id="sidebar">
-            <div class="sidebar-title">Resumen</div>
-            <div class="metric-card">
-              <div class="metric-label">Ganancia realizada</div>
-              <div class="metric-val green" id="m-ganancia-real">$0</div>
-              <div class="metric-sub">por ventas cerradas</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Inversión en stock</div>
-              <div class="metric-val amber" id="m-inversion">$0</div>
-              <div class="metric-sub">costo × stock actual</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Margen promedio</div>
-              <div class="metric-val blue" id="m-margen">0%</div>
-              <div class="metric-sub">por unidad</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Unidades en stock</div>
-              <div class="metric-val" id="m-stock" style="color:var(--text)">0</div>
-              <div class="metric-sub">total disponibles</div>
-            </div>
-            <div class="metric-card" id="m-vendidos-card">
-              <div class="metric-label">Vendidos por producto</div>
-              <div id="m-vendidos-list" style="margin-top:6px;"></div>
-            </div>
-          </div>
-
-          <!-- PRODUCTOS -->
-          <div>
-            <div class="section-title">Productos</div>
-            <div class="section-sub">Gestiona tu catálogo y stock.</div>
-            <div class="config-box">
-              <label>WhatsApp de contacto</label>
-              <input type="text" id="wa-cfg" placeholder="+56912345678" oninput="markUnsaved()">
-            </div>
-            <div class="prod-list" id="prod-list"></div>
-            <button class="btn-add-product" onclick="addProduct()">+ Agregar producto</button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- TAB CONFIG -->
-      <div class="tab-content" id="tab-config">
-        <div class="section-title">Configuración</div>
-        <div class="section-sub" style="margin-bottom:1.5rem;">Credenciales de acceso al panel.</div>
-        <div class="change-pw">
-          <div class="change-pw-title">Cambiar usuario y contraseña</div>
-          <div class="pw-row">
-            <input type="text" id="new-user" placeholder="Nuevo usuario">
-            <input type="password" id="new-pw" placeholder="Nueva contraseña">
-            <input type="password" id="new-pw2" placeholder="Repetir contraseña">
-            <button class="btn-pw" onclick="changePassword()">Guardar</button>
-          </div>
-          <div class="pw-msg" id="pw-msg"></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="save-bar">
-    <span class="save-status" id="save-status">Sin cambios pendientes</span>
-    <div class="save-actions">
-      <a href="index.html" target="_blank" class="btn-preview">Ver página →</a>
-      <button class="btn-save" onclick="saveAll()">Guardar cambios</button>
-    </div>
-  </div>
-</div>
-
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -263,6 +22,23 @@ const TAG_OPTS = [
 let products = [];
 let nextId = 10;
 let unsaved = false;
+
+// --- UTILIDADES DE FORMATO ---
+
+function fmt(n) { 
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    minimumFractionDigits: 0
+  }).format(Math.round(n));
+}
+
+function cleanPrice(value) {
+  if (typeof value === 'number') return value;
+  return parseInt(value.replace(/\D/g, '')) || 0;
+}
+
+// --- LÓGICA DE NAVEGACIÓN Y LOGIN ---
 
 function switchTab(name, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -292,47 +68,74 @@ async function doLogin() {
 }
 
 function logout() {
+  if (unsaved && !confirm('Tienes cambios sin guardar. ¿Cerrar sesión de todas formas?')) return;
   document.getElementById('admin-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pw-input').value = '';
+  localStorage.removeItem('tvbox_backup');
 }
 
+// --- MANEJO DE DATOS ---
+
 async function loadData() {
-  const psnap = await getDoc(doc(db, 'tienda', 'productos'));
-  const csnap = await getDoc(doc(db, 'tienda', 'config'));
-  products = psnap.exists() ? (psnap.data().lista || []) : getDefaultProducts();
-  const waVal = csnap.exists() ? (csnap.data().wa || '+56912345678') : '+56912345678';
-  document.getElementById('wa-cfg').value = waVal;
-  nextId = products.reduce((m,p) => Math.max(m, p.id), 0) + 1;
-  renderList();
-  updateMetrics();
+  try {
+    const psnap = await getDoc(doc(db, 'tienda', 'productos'));
+    const csnap = await getDoc(doc(db, 'tienda', 'config'));
+    
+    let cloudProducts = psnap.exists() ? (psnap.data().lista || []) : getDefaultProducts();
+    const localBackup = localStorage.getItem('tvbox_backup');
+
+    if (localBackup) {
+      if (confirm('Se detectaron cambios no guardados de una sesión anterior. ¿Deseas recuperarlos?')) {
+        products = JSON.parse(localBackup);
+        markUnsaved();
+      } else {
+        products = cloudProducts;
+        localStorage.removeItem('tvbox_backup');
+      }
+    } else {
+      products = cloudProducts;
+    }
+
+    const waVal = csnap.exists() ? (csnap.data().wa || '+56912345678') : '+56912345678';
+    document.getElementById('wa-cfg').value = waVal;
+    nextId = products.reduce((m,p) => Math.max(m, p.id), 0) + 1;
+    renderList();
+    updateMetrics();
+  } catch (e) {
+    alert("Error al cargar datos de Firebase. Revisa la consola.");
+    console.error(e);
+  }
 }
 
 function getDefaultProducts() {
   return [
-    { id:1, name:'TV Box Básico',  desc:'YouTube, Netflix, series. Optimizado para que todo abra rápido y sin trabas.', price:'XX.XXX', tag:'amber', featured:false, photos:[], video:'', stock:0, costo:0, vendidos:0 },
-    { id:2, name:'TV Box Pro',     desc:'Más fluido, mejor imagen. El favorito de nuestros clientes.',                  price:'XX.XXX', tag:'blue',  featured:true,  photos:[], video:'', stock:0, costo:0, vendidos:0 },
-    { id:3, name:'TV Box Ultra',   desc:'La mejor experiencia posible. Para el que no quiere compromisos.',             price:'XX.XXX', tag:'green', featured:false, photos:[], video:'', stock:0, costo:0, vendidos:0 },
+    { id:1, name:'TV Box Básico',  desc:'YouTube, Netflix, series.', price:'10000', tag:'amber', featured:false, photos:[], video:'', stock:0, costo:0, vendidos:0 },
   ];
 }
 
-function fmt(n) { return Math.round(n).toLocaleString('es-CL'); }
-
 function updateMetrics() {
   let inversion = 0, gananciaReal = 0, totalStock = 0, margenSum = 0, margenCount = 0;
+  
   products.forEach(p => {
-    const stock   = p.stock    || 0;
-    const costo   = p.costo    || 0;
+    const stock    = p.stock    || 0;
+    const costo    = p.costo    || 0;
     const vendidos = p.vendidos || 0;
-    const venta   = parseInt((p.price || '0').replace(/\./g,'')) || 0;
-    inversion   += costo * stock;
+    const venta    = cleanPrice(p.price || '0');
+    
+    inversion    += costo * stock;
     gananciaReal += (venta - costo) * vendidos;
-    totalStock  += stock;
-    if (venta > 0) { margenSum += ((venta - costo) / venta) * 100; margenCount++; }
+    totalStock   += stock;
+    
+    if (venta > 0) { 
+      margenSum += ((venta - costo) / venta) * 100; 
+      margenCount++; 
+    }
   });
+
   const margen = margenCount > 0 ? margenSum / margenCount : 0;
-  document.getElementById('m-inversion').textContent    = `$${fmt(inversion)}`;
-  document.getElementById('m-ganancia-real').textContent = `$${fmt(gananciaReal)}`;
+  document.getElementById('m-inversion').textContent    = fmt(inversion);
+  document.getElementById('m-ganancia-real').textContent = fmt(gananciaReal);
   document.getElementById('m-margen').textContent       = `${Math.round(margen)}%`;
   document.getElementById('m-stock').textContent        = totalStock;
   document.getElementById('m-stock').style.color = totalStock > 0 ? 'var(--good)' : 'var(--bad)';
@@ -345,13 +148,16 @@ function updateMetrics() {
     </div>`).join('');
 }
 
+// --- ACCIONES DE PRODUCTOS ---
+
 function addProduct() {
-  products.push({ id: nextId++, name:'Nuevo modelo', desc:'Descripción.', price:'XX.XXX', tag:'amber', featured:false, photos:[], video:'', stock:0, costo:0, vendidos:0 });
+  products.push({ id: nextId++, name:'Nuevo modelo', desc:'Descripción.', price:'0', tag:'amber', featured:false, photos:[], video:'', stock:0, costo:0, vendidos:0 });
   renderList(); updateMetrics(); markUnsaved();
 }
 
 function removeProduct(id) {
   if (products.length <= 1) return alert('Debe haber al menos un producto.');
+  if (!confirm('¿Estás seguro de eliminar este producto?')) return;
   products = products.filter(p => p.id !== id);
   renderList(); updateMetrics(); markUnsaved();
 }
@@ -366,10 +172,7 @@ function changeStock(id, delta) {
   } else {
     p.stock = (p.stock || 0) + 1;
   }
-  const val = document.getElementById(`sv-${id}`);
-  const badge = document.getElementById(`sb-${id}`);
-  if (val) val.textContent = p.stock;
-  if (badge) { badge.textContent = p.stock > 0 ? 'En stock' : 'Sin stock'; badge.className = `stock-badge ${p.stock > 0 ? 'ok' : 'out'}`; }
+  renderList(); // Re-render para actualizar inputs de stock
   updateMetrics(); markUnsaved();
 }
 
@@ -378,6 +181,8 @@ function renderList() {
   list.innerHTML = products.map(p => {
     const photos = p.photos || ['','',''];
     const stock = p.stock ?? 0;
+    const precioFormateado = fmt(cleanPrice(p.price));
+
     return `
     <div class="prod-card ${p.featured?'is-featured':''}" id="card-${p.id}">
       <div class="prod-card-top">
@@ -398,8 +203,8 @@ function renderList() {
           <input type="text" value="${p.name}" oninput="updateField(${p.id},'name',this.value)">
         </div>
         <div class="field">
-          <label>Precio de venta ($)</label>
-          <input type="text" value="${p.price}" oninput="updateField(${p.id},'price',this.value)">
+          <label>Precio de venta</label>
+          <input type="text" value="${precioFormateado}" oninput="this.value = fmt(cleanPrice(this.value)); updateField(${p.id},'price',this.value)">
         </div>
         <div class="field">
           <label>Costo por unidad ($)</label>
@@ -407,7 +212,7 @@ function renderList() {
         </div>
         <div class="field">
           <label>Stock disponible</label>
-          <input type="number" min="0" value="${stock}" oninput="updateField(${p.id},'stock',parseInt(this.value)||0);document.getElementById('sv-${p.id}').textContent=parseInt(this.value)||0">
+          <input type="number" min="0" value="${stock}" oninput="updateField(${p.id},'stock',parseInt(this.value)||0); updateMetrics();">
         </div>
         <div class="field field-full">
           <label>Descripción</label>
@@ -445,10 +250,16 @@ function updateField(id, field, value) {
   const p = products.find(p => p.id === id);
   if (p) {
     p[field] = value;
-    const card = document.getElementById(`card-${id}`);
-    if (field === 'name') card.querySelector('.prod-card-name').textContent = value;
-    if (field === 'featured') card.className = `prod-card ${value?'is-featured':''}`;
-    updateMetrics(); markUnsaved();
+    if (field === 'name') {
+        const card = document.getElementById(`card-${id}`);
+        if(card) card.querySelector('.prod-card-name').textContent = value;
+    }
+    if (field === 'featured') {
+        const card = document.getElementById(`card-${id}`);
+        if(card) card.className = `prod-card ${value?'is-featured':''}`;
+    }
+    updateMetrics(); 
+    markUnsaved();
   }
 }
 
@@ -457,22 +268,45 @@ function updatePhoto(id, index, value) {
   if (p) { if (!p.photos) p.photos=['','','']; p.photos[index]=value; markUnsaved(); }
 }
 
+// --- PERSISTENCIA Y GUARDADO ---
+
 function markUnsaved() {
   unsaved = true;
+  localStorage.setItem('tvbox_backup', JSON.stringify(products));
   const s = document.getElementById('save-status');
-  s.textContent = 'Tienes cambios sin guardar';
+  s.textContent = '⚠️ Tienes cambios sin guardar';
   s.className = 'save-status';
 }
 
 async function saveAll() {
-  const wa = document.getElementById('wa-cfg').value;
-  await setDoc(doc(db,'tienda','productos'), { lista: products });
-  await setDoc(doc(db,'tienda','config'), { wa });
-  unsaved = false;
-  const s = document.getElementById('save-status');
-  s.textContent = '¡Guardado! Los cambios ya se ven en la página.';
-  s.className = 'save-status saved';
-  setTimeout(() => { s.textContent='Sin cambios pendientes'; s.className='save-status'; }, 3000);
+  const btn = document.querySelector('.btn-save');
+  const originalText = btn.textContent;
+  
+  try {
+    btn.disabled = true;
+    btn.textContent = '⏳ Guardando...';
+    
+    const wa = document.getElementById('wa-cfg').value;
+    
+    await Promise.all([
+      setDoc(doc(db, 'tienda', 'productos'), { lista: products }),
+      setDoc(doc(db, 'tienda', 'config'), { wa })
+    ]);
+
+    unsaved = false;
+    localStorage.removeItem('tvbox_backup');
+    
+    const s = document.getElementById('save-status');
+    s.textContent = '✅ ¡Guardado con éxito!';
+    s.className = 'save-status saved';
+    setTimeout(() => { s.textContent='Sin cambios pendientes'; s.className='save-status'; }, 3000);
+
+  } catch (error) {
+    alert('Error al guardar: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
 }
 
 async function changePassword() {
@@ -483,6 +317,7 @@ async function changePassword() {
   if (!newUser) { msg.className='pw-msg err'; msg.textContent='El usuario no puede estar vacío.'; return; }
   if (!p1||p1.length<4) { msg.className='pw-msg err'; msg.textContent='Mínimo 4 caracteres.'; return; }
   if (p1!==p2) { msg.className='pw-msg err'; msg.textContent='Las contraseñas no coinciden.'; return; }
+  
   await setDoc(doc(db,'tienda','admin'), { user: newUser, pass: p1 });
   document.getElementById('new-user').value='';
   document.getElementById('new-pw').value='';
@@ -491,12 +326,10 @@ async function changePassword() {
   setTimeout(() => { msg.textContent=''; }, 3000);
 }
 
+// --- EXPOSICIÓN GLOBAL PARA HTML ---
 window.doLogin=doLogin; window.logout=logout; window.switchTab=switchTab;
 window.addProduct=addProduct; window.removeProduct=removeProduct; window.changeStock=changeStock;
 window.updateField=updateField; window.updatePhoto=updatePhoto;
-window.saveAll=saveAll; window.changePassword=changePassword;
+window.saveAll=saveAll; window.changePassword=changePassword; window.cleanPrice=cleanPrice; window.fmt=fmt; window.updateMetrics=updateMetrics;
 
 window.addEventListener('beforeunload', e => { if (unsaved) { e.preventDefault(); e.returnValue=''; } });
-</script>
-</body>
-</html>
