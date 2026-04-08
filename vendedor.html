@@ -145,7 +145,11 @@
             </div>
             <div class="field field-full">
               <label>Dirección de envío</label>
-              <input type="text" id="v-direccion" placeholder="Calle, número, ciudad">
+              <input type="text" id="v-direccion" placeholder="Calle, número">
+            </div>
+            <div class="field">
+              <label>Comuna</label>
+              <input type="text" id="v-comuna" placeholder="ej: Santiago, Viña del Mar">
             </div>
             <div class="field field-full">
               <button class="btn-submit" id="btn-vender">Confirmar venta →</button>
@@ -270,7 +274,9 @@ async function registrarVenta() {
   const pago     = document.getElementById('v-pago').value;
   const msg      = document.getElementById('form-msg');
 
-  if (!cliente || !telefono || !direccion) {
+  const comuna   = document.getElementById('v-comuna').value.trim();
+
+  if (!cliente || !telefono || !direccion || !comuna) {
     msg.className='form-msg err'; msg.textContent='Completa todos los campos del cliente.'; return;
   }
 
@@ -292,6 +298,7 @@ async function registrarVenta() {
     cliente,
     telefono,
     direccion,
+    comuna,
     pago,
     monto: cleanPrice(p.price||'0'),
   };
@@ -306,6 +313,7 @@ async function registrarVenta() {
     document.getElementById('v-cliente').value='';
     document.getElementById('v-telefono').value='';
     document.getElementById('v-direccion').value='';
+    document.getElementById('v-comuna').value='';
     renderStock();
     renderProductSelect();
     setTimeout(() => { msg.textContent=''; }, 4000);
@@ -326,7 +334,7 @@ function renderHistorial() {
     <table class="hist-table">
       <thead>
         <tr>
-          <th>Fecha</th><th>Producto</th><th>Cliente</th><th>Teléfono</th><th>Dirección</th><th>Pago</th><th>Monto</th>
+          <th>Fecha</th><th>Producto</th><th>Cliente</th><th>Teléfono</th><th>Dirección</th><th>Comuna</th><th>Pago</th><th>Monto</th>
         </tr>
       </thead>
       <tbody>
@@ -337,6 +345,7 @@ function renderHistorial() {
             <td>${v.cliente||'—'}</td>
             <td style="color:var(--muted);">${v.telefono||'—'}</td>
             <td style="color:var(--muted);">${v.direccion||'—'}</td>
+            <td style="color:var(--muted);">${v.comuna||'—'}</td>
             <td style="color:var(--muted);">${v.pago||'—'}</td>
             <td style="color:var(--good);font-weight:500;">${fmt(v.monto||0)}</td>
           </tr>`).join('')}

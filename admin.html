@@ -623,23 +623,61 @@ function renderHistorial() {
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr>
-          ${['Fecha','Vendedor','Producto','Cliente','Teléfono','Dirección','Pago','Monto'].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;">${h}</th>`).join('')}
+          ${['Fecha','Vendedor','Producto','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;">${h}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
-        ${[...ventas].reverse().map(v=>`
-          <tr>
+        ${[...ventas].reverse().map((v, ri) => {
+          const i = ventas.length - 1 - ri;
+          const anulada = v.anulada === true;
+          return `
+          <tr style="${anulada?'opacity:0.5;':''}">
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);white-space:nowrap;">${v.fecha||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--accent);">${v.vendedor||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);font-weight:500;">${v.producto||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);">${v.cliente||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${v.telefono||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${v.direccion||'—'}</td>
+            <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${v.comuna||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${v.pago||'—'}</td>
-            <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--good);font-weight:500;">${fmt(v.monto||0)}</td>
-          </tr>`).join('')}
+            <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:${anulada?'var(--muted)':'var(--good)'};font-weight:500;${anulada?'text-decoration:line-through;':''};">${fmt(v.monto||0)}</td>
+            <td style="padding:9px 10px;border-bottom:1px solid var(--border);">
+              ${anulada
+                ? `<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>
+                   ${v.observacion ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${v.observacion}</div>` : ''}`
+                : '<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>'}
+            </td>
+            <td style="padding:9px 10px;border-bottom:1px solid var(--border);">
+              ${!anulada ? `<button onclick="anularVenta(${i})" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>` : ''}
+            </td>
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
+}
+
+async function anularVenta(index) {
+  const observacion = prompt('Motivo de anulación (ej: venta de prueba, cliente cancela):');
+  if (observacion === null) return;
+  const v = ventas[index];
+  if (!v || v.anulada) return;
+  v.anulada = true;
+  v.observacion = observacion || 'Sin observación';
+  const p = products.find(p => p.name === v.producto);
+  if (p) {
+    p.stock = (p.stock || 0) + 1;
+    p.vendidos = Math.max(0, (p.vendidos || 0) - 1);
+  }
+  try {
+    await Promise.all([
+      setDoc(doc(db,'tienda','ventas'), { lista: ventas }),
+      setDoc(doc(db,'tienda','productos'), { lista: products }),
+    ]);
+    updateMetrics();
+    renderHistorial();
+  } catch(e) {
+    alert('Error al anular: ' + e.message);
+  }
 }
 
 window.doLogin=doLogin; window.logout=logout; window.switchTab=switchTab;
@@ -647,6 +685,7 @@ window.addProduct=addProduct; window.removeProduct=removeProduct;
 window.updateField=updateField; window.updatePhoto=updatePhoto; window.updateMetrics=updateMetrics;
 window.saveAll=saveAll; window.changePassword=changePassword;
 window.crearUsuario=crearUsuario; window.eliminarUsuario=eliminarUsuario;
+window.anularVenta=anularVenta;
 window.fmt=fmt; window.cleanPrice=cleanPrice;
 
 document.getElementById('login-btn').addEventListener('click', doLogin);
