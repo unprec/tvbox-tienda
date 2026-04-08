@@ -229,6 +229,11 @@
     </div>
   </div>
 
+  <div id="revert-bar" style="display:none;position:sticky;bottom:60px;background:rgba(245,166,35,0.1);border-top:1px solid rgba(245,166,35,0.3);padding:0.75rem 2rem;align-items:center;justify-content:space-between;gap:12px;z-index:49;">
+    <span style="font-size:13px;color:var(--amber);">⚠️ Última venta registrada</span>
+    <button onclick="revertLastSale()" style="font-size:13px;font-weight:500;padding:7px 18px;background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.4);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">↩ Revertir</button>
+  </div>
+
   <div class="save-bar">
     <span class="save-status" id="save-status">Sin cambios pendientes</span>
     <div class="save-actions">
@@ -381,20 +386,38 @@ function removeProduct(id) {
   renderList(); updateMetrics(); markUnsaved();
 }
 
+let lastSale = null;
+
 function changeStock(id, delta) {
   const p = products.find(p => p.id === id);
   if (!p) return;
   if (delta < 0) {
     if ((p.stock || 0) <= 0) return;
+    if (!confirm(`¿Confirmar venta de 1 unidad de "${p.name}"?`)) return;
     p.stock = (p.stock || 0) - 1;
     p.vendidos = (p.vendidos || 0) + 1;
-  } else {
-    p.stock = (p.stock || 0) + 1;
+    lastSale = { id, name: p.name };
+    document.getElementById('revert-bar').style.display = 'flex';
   }
   const val = document.getElementById(`sv-${id}`);
   const badge = document.getElementById(`sb-${id}`);
   if (val) val.textContent = p.stock;
   if (badge) { badge.textContent = p.stock > 0 ? 'En stock' : 'Sin stock'; badge.className = `stock-badge ${p.stock > 0 ? 'ok' : 'out'}`; }
+  updateMetrics(); markUnsaved();
+}
+
+function revertLastSale() {
+  if (!lastSale) return;
+  const p = products.find(p => p.id === lastSale.id);
+  if (!p) return;
+  p.stock = (p.stock || 0) + 1;
+  p.vendidos = Math.max(0, (p.vendidos || 0) - 1);
+  const val = document.getElementById(`sv-${lastSale.id}`);
+  const badge = document.getElementById(`sb-${lastSale.id}`);
+  if (val) val.textContent = p.stock;
+  if (badge) { badge.textContent = p.stock > 0 ? 'En stock' : 'Sin stock'; badge.className = `stock-badge ${p.stock > 0 ? 'ok' : 'out'}`; }
+  lastSale = null;
+  document.getElementById('revert-bar').style.display = 'none';
   updateMetrics(); markUnsaved();
 }
 
@@ -409,9 +432,8 @@ function renderList() {
         <div class="prod-card-name">${p.name}</div>
         <div class="prod-card-actions">
           <div class="stock-ctrl">
-            <button class="stock-btn minus" onclick="changeStock(${p.id},-1)">−</button>
+            <button class="stock-btn minus" onclick="changeStock(${p.id},-1)">− Venta</button>
             <span class="stock-val" id="sv-${p.id}">${stock}</span>
-            <button class="stock-btn plus" onclick="changeStock(${p.id},1)">+</button>
           </div>
           <span class="stock-badge ${stock>0?'ok':'out'}" id="sb-${p.id}">${stock>0?'En stock':'Sin stock'}</span>
           ${products.length > 1 ? `<button class="btn-del" onclick="removeProduct(${p.id})">Eliminar</button>` : ''}
@@ -535,7 +557,7 @@ async function changePassword() {
 window.doLogin=doLogin; window.logout=logout; window.switchTab=switchTab;
 window.addProduct=addProduct; window.removeProduct=removeProduct; window.changeStock=changeStock;
 window.updateField=updateField; window.updatePhoto=updatePhoto; window.updateMetrics=updateMetrics;
-window.saveAll=saveAll; window.changePassword=changePassword;
+window.saveAll=saveAll; window.changePassword=changePassword; window.revertLastSale=revertLastSale;
 window.fmt=fmt; window.cleanPrice=cleanPrice;
 
 document.getElementById('login-btn').addEventListener('click', doLogin);
