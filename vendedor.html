@@ -343,21 +343,30 @@ function renderHistorial() {
     <table class="hist-table">
       <thead>
         <tr>
-          <th>Fecha</th><th>Producto</th><th>Cliente</th><th>Teléfono</th><th>Dirección</th><th>Comuna</th><th>Pago</th><th>Monto</th>
+          <th>Fecha</th><th>Producto</th><th>Cliente</th><th>Teléfono</th><th>Dirección</th><th>Comuna</th><th>Pago</th><th>Monto</th><th>Estado</th>
         </tr>
       </thead>
       <tbody>
-        ${[...misVentas].reverse().map(v=>`
-          <tr>
+        ${[...misVentas].reverse().map(v => {
+          const anulada = v.anulada === true;
+          return `
+          <tr style="${anulada?'opacity:0.5;':''}">
             <td style="color:var(--muted);white-space:nowrap;">${v.fecha||'—'}</td>
-            <td style="font-weight:500;">${v.producto||'—'}</td>
+            <td style="font-weight:500;${anulada?'text-decoration:line-through;':''}">${v.producto||'—'}</td>
             <td>${v.cliente||'—'}</td>
             <td style="color:var(--muted);">${v.telefono||'—'}</td>
             <td style="color:var(--muted);">${v.direccion||'—'}</td>
             <td style="color:var(--muted);">${v.comuna||'—'}</td>
             <td style="color:var(--muted);">${v.pago||'—'}</td>
-            <td style="color:var(--good);font-weight:500;">${fmt(v.monto||0)}</td>
-          </tr>`).join('')}
+            <td style="${anulada?'color:var(--muted);text-decoration:line-through;':'color:var(--good);font-weight:500;'}">${fmt(v.monto||0)}</td>
+            <td>
+              ${anulada
+                ? `<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>
+                   ${v.observacion ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${v.observacion}</div>` : ''}`
+                : '<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>'}
+            </td>
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>`;
 }
