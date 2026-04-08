@@ -8,70 +8,55 @@
 <style>
   :root {
     --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c26;
-    --border: rgba(255,255,255,0.07); --accent: #4f8ef7;
-    --good: #3ecf8e; --bad: #f66; --text: #f0f0f5; --muted: #7a7a90; --amber: #f5a623;
+    --border: rgba(255,255,255,0.07); --accent: #ff6b1a;
+    --good: #3ecf8e; --bad: #f66; --text: #f0f0f5; --muted: #7a7a90;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; }
-
   #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
   .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 2.5rem 2rem; width: 100%; max-width: 360px; text-align: center; }
   .login-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; margin-bottom: 0.25rem; }
-  .login-logo span { color: #ff6b1a; }
+  .login-logo span { color: var(--accent); }
   .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 2rem; }
   .login-label { display: block; font-size: 12px; color: var(--muted); text-align: left; margin-bottom: 6px; }
-  .login-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text); font-family: 'DM Sans', sans-serif; margin-bottom: 1rem; outline: none; transition: border-color 0.15s; }
-  .login-input:focus { border-color: rgba(79,142,247,0.4); }
-  .login-btn { width: 100%; background: #ff6b1a; color: white; border: none; border-radius: 9px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
-  .login-btn:hover { opacity: 0.85; }
+  .login-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 11px 14px; font-size: 15px; color: var(--text); font-family: 'DM Sans', sans-serif; margin-bottom: 1rem; outline: none; }
+  .login-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: 9px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
   .login-error { font-size: 13px; color: var(--bad); margin-top: 10px; display: none; }
-
   #main-screen { display: none; }
   nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
   .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; }
-  .logo span { color: #ff6b1a; }
+  .logo span { color: var(--accent); }
   .nav-right { display: flex; align-items: center; gap: 10px; }
-  .vendedor-badge { font-size: 11px; background: rgba(255,107,26,0.1); color: #ff6b1a; border: 1px solid rgba(255,107,26,0.2); padding: 4px 12px; border-radius: 20px; }
+  .vendedor-badge { font-size: 11px; background: rgba(255,107,26,0.1); color: var(--accent); border: 1px solid rgba(255,107,26,0.2); padding: 4px 12px; border-radius: 20px; }
   .btn-logout { font-size: 13px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px 8px; }
-
   .tabs-wrap { padding: 1.5rem 2rem 0; max-width: 900px; margin: 0 auto; }
   .tabs { display: flex; gap: 4px; }
   .tab { font-size: 14px; font-weight: 500; padding: 9px 20px; border-radius: 9px 9px 0 0; border: 1px solid var(--border); border-bottom: none; cursor: pointer; color: var(--muted); background: var(--surface2); font-family: 'DM Sans', sans-serif; }
   .tab.active { background: var(--surface); color: var(--text); }
   .tab-content { display: none; }
   .tab-content.active { display: block; }
-
   .body-wrap { max-width: 900px; margin: 0 auto; padding: 0 2rem 4rem; }
   .inner { background: var(--surface); border: 1px solid var(--border); border-radius: 0 9px 9px 9px; padding: 1.5rem; }
-
   .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 0.25rem; }
   .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
-
-  /* STOCK CARDS */
   .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem; }
   .stock-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
   .stock-card-name { font-weight: 500; font-size: 14px; margin-bottom: 6px; }
-  .stock-card-price { font-size: 18px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 6px; }
+  .stock-card-price { font-size: 18px; font-weight: 700; font-family: 'Syne', sans-serif; margin-bottom: 6px; }
   .stock-badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
   .stock-badge.ok { background: rgba(62,207,142,0.1); color: var(--good); border: 1px solid rgba(62,207,142,0.2); }
   .stock-badge.out { background: rgba(255,102,102,0.1); color: var(--bad); border: 1px solid rgba(255,102,102,0.2); }
-
-  /* FORM */
   .sale-form { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media(max-width:600px){ .form-grid { grid-template-columns: 1fr; } }
   .field-full { grid-column: 1 / -1; }
   .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
-  .field input, .field select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.15s; }
-  .field input:focus, .field select:focus { border-color: rgba(79,142,247,0.4); }
+  .field input, .field select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; }
   .field select option { background: #1c1c26; }
-  .btn-submit { width: 100%; background: #ff6b1a; color: white; border: none; border-radius: 9px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 4px; transition: opacity 0.15s; }
-  .btn-submit:hover { opacity: 0.85; }
+  .btn-submit { width: 100%; background: var(--accent); color: white; border: none; border-radius: 9px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 4px; }
   .form-msg { font-size: 13px; margin-top: 10px; text-align: center; }
   .form-msg.ok { color: var(--good); }
   .form-msg.err { color: var(--bad); }
-
-  /* HISTORIAL */
   .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .hist-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; }
   .hist-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
@@ -88,7 +73,7 @@
     <input type="text" class="login-input" id="user-input" placeholder="tu usuario">
     <label class="login-label">Contraseña</label>
     <input type="password" class="login-input" id="pw-input" placeholder="••••••••">
-    <button class="login-btn" id="login-btn">Entrar</button>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
     <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
   </div>
 </div>
@@ -104,15 +89,14 @@
 
   <div class="tabs-wrap">
     <div class="tabs">
-      <button class="tab active" id="tab-btn-vender" onclick="switchTab('vender',this)">🛒 Nueva venta</button>
-      <button class="tab" id="tab-btn-historial" onclick="switchTab('historial',this)">📋 Mis ventas</button>
+      <button class="tab active" onclick="switchTab('vender',this)">🛒 Nueva venta</button>
+      <button class="tab" onclick="switchTab('historial',this)">📋 Mis ventas</button>
     </div>
   </div>
 
   <div class="body-wrap">
     <div class="inner">
 
-      <!-- TAB VENDER -->
       <div class="tab-content active" id="tab-vender">
         <div class="section-title">Stock disponible</div>
         <div class="section-sub">Selecciona un producto para registrar la venta.</div>
@@ -122,16 +106,9 @@
         <div class="section-sub">Completa los datos del cliente.</div>
         <div class="sale-form">
           <div class="form-grid">
-            <div class="field">
-              <label>Producto</label>
-              <select id="v-producto"></select>
-            </div>
-            <div class="field">
-              <label>Cantidad</label>
-              <input type="number" id="v-cantidad" min="1" value="1" placeholder="1">
-            </div>
-            <div class="field">
-              <label>Método de pago</label>
+            <div class="field"><label>Producto</label><select id="v-producto"></select></div>
+            <div class="field"><label>Cantidad</label><input type="number" id="v-cantidad" min="1" value="1"></div>
+            <div class="field"><label>Método de pago</label>
               <select id="v-pago">
                 <option value="Transferencia">Transferencia</option>
                 <option value="Efectivo">Efectivo</option>
@@ -139,31 +116,16 @@
                 <option value="Crédito">Crédito</option>
               </select>
             </div>
-            <div class="field">
-              <label>Nombre del cliente</label>
-              <input type="text" id="v-cliente" placeholder="Nombre completo" style="text-transform:uppercase;">
-            </div>
-            <div class="field">
-              <label>Teléfono</label>
-              <input type="text" id="v-telefono" placeholder="+56 9 XXXX XXXX" value="+56">
-            </div>
-            <div class="field field-full">
-              <label>Dirección de envío</label>
-              <input type="text" id="v-direccion" placeholder="Calle, número" style="text-transform:uppercase;">
-            </div>
-            <div class="field">
-              <label>Comuna</label>
-              <input type="text" id="v-comuna" placeholder="ej: Santiago, Viña del Mar" style="text-transform:uppercase;">
-            </div>
-            <div class="field field-full">
-              <button class="btn-submit" id="btn-vender">Confirmar venta →</button>
-            </div>
+            <div class="field"><label>Nombre del cliente</label><input type="text" id="v-cliente" placeholder="Nombre completo" style="text-transform:uppercase;"></div>
+            <div class="field"><label>Teléfono</label><input type="text" id="v-telefono" value="+56"></div>
+            <div class="field field-full"><label>Dirección de envío</label><input type="text" id="v-direccion" placeholder="Calle, número" style="text-transform:uppercase;"></div>
+            <div class="field"><label>Comuna</label><input type="text" id="v-comuna" placeholder="ej: Santiago" style="text-transform:uppercase;"></div>
+            <div class="field field-full"><button class="btn-submit" onclick="registrarVenta()">Confirmar venta →</button></div>
           </div>
           <div class="form-msg" id="form-msg"></div>
         </div>
       </div>
 
-      <!-- TAB HISTORIAL -->
       <div class="tab-content" id="tab-historial">
         <div class="section-title">Mis ventas</div>
         <div class="section-sub">Historial de ventas registradas por ti.</div>
@@ -174,10 +136,9 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyDhyUnOAfLaenLwC_5ekkPJjvlhpLg_RS4",
   authDomain: "tvbox-tienda.firebaseapp.com",
@@ -186,38 +147,37 @@ const firebaseConfig = {
   messagingSenderId: "621421300942",
   appId: "1:621421300942:web:a7eef5446ac6343f1c949f"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 let currentUser = null;
 let products = [];
 let ventas = [];
+let unsubProducts = null;
+let unsubVentas = null;
 
 function fmt(n) {
-  return new Intl.NumberFormat('es-CL', { style:'currency', currency:'CLP', minimumFractionDigits:0 }).format(Math.round(n));
+  return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',minimumFractionDigits:0}).format(Math.round(n));
 }
 function cleanPrice(v) {
-  if (typeof v === 'number') return v;
-  return parseInt(String(v).replace(/\D/g,'')) || 0;
+  if (typeof v==='number') return v;
+  return parseInt(String(v).replace(/\D/g,''))||0;
 }
 
 function switchTab(name, el) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
   el.classList.add('active');
-  if (name === 'historial') renderHistorial();
+  if (name==='historial') renderHistorial();
 }
 
 async function doLogin() {
   const user = document.getElementById('user-input').value.trim();
   const pass = document.getElementById('pw-input').value;
-
-  const usnap = await getDoc(doc(db, 'tienda', 'usuarios'));
-  const usuarios = usnap.exists() ? (usnap.data().lista || []) : [];
-  const match = usuarios.find(u => u.user === user && u.pass === pass && u.rol === 'vendedor');
-
+  const usnap = await db.doc('tienda/usuarios').get();
+  const usuarios = usnap.exists ? (usnap.data().lista||[]) : [];
+  const match = usuarios.find(u=>u.user===user&&u.pass===pass&&u.rol==='vendedor');
   if (match) {
     currentUser = match.user;
     sessionStorage.setItem('tvbox_vendedor', currentUser);
@@ -232,8 +192,8 @@ async function doLogin() {
 }
 
 function logout() {
-  if (unsubProducts) { unsubProducts(); unsubProducts = null; }
-  if (unsubVentas) { unsubVentas(); unsubVentas = null; }
+  if (unsubProducts) { unsubProducts(); unsubProducts=null; }
+  if (unsubVentas) { unsubVentas(); unsubVentas=null; }
   sessionStorage.removeItem('tvbox_vendedor');
   document.getElementById('main-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
@@ -241,103 +201,84 @@ function logout() {
   currentUser = null;
 }
 
-let unsubProducts = null;
-let unsubVentas = null;
-
 function loadData() {
   if (unsubProducts) unsubProducts();
   if (unsubVentas) unsubVentas();
-
-  unsubProducts = onSnapshot(doc(db, 'tienda', 'productos'), snap => {
-    products = snap.exists() ? (snap.data().lista || []) : [];
+  unsubProducts = db.doc('tienda/productos').onSnapshot(snap => {
+    products = snap.exists ? (snap.data().lista||[]) : [];
     renderStock();
     renderProductSelect();
   });
-
-  unsubVentas = onSnapshot(doc(db, 'tienda', 'ventas'), snap => {
-    ventas = snap.exists() ? (snap.data().lista || []) : [];
+  unsubVentas = db.doc('tienda/ventas').onSnapshot(snap => {
+    ventas = snap.exists ? (snap.data().lista||[]) : [];
   });
 }
 
 function renderStock() {
-  const grid = document.getElementById('stock-grid');
-  grid.innerHTML = products.map(p => {
-    const stock = p.stock || 0;
-    return `
-    <div class="stock-card">
-      <div class="stock-card-name">${p.name}</div>
-      <div class="stock-card-price">${fmt(cleanPrice(p.price||'0'))}</div>
-      <span class="stock-badge ${stock>0?'ok':'out'}">${stock>0?'Stock: '+stock+' uds.':'Sin stock'}</span>
-    </div>`;
+  document.getElementById('stock-grid').innerHTML = products.map(p => {
+    const s = p.stock||0;
+    return '<div class="stock-card">'+
+      '<div class="stock-card-name">'+p.name+'</div>'+
+      '<div class="stock-card-price">'+fmt(cleanPrice(p.price||'0'))+'</div>'+
+      '<span class="stock-badge '+(s>0?'ok':'out')+'">'+(s>0?'Stock: '+s+' uds.':'Sin stock')+'</span>'+
+      '</div>';
   }).join('');
 }
 
 function renderProductSelect() {
   const sel = document.getElementById('v-producto');
-  sel.innerHTML = products
-    .filter(p => (p.stock||0) > 0)
-    .map(p => `<option value="${p.id}">${p.name} — ${fmt(cleanPrice(p.price||'0'))}</option>`)
-    .join('');
-  if (!sel.innerHTML) sel.innerHTML = '<option disabled>Sin stock disponible</option>';
+  const available = products.filter(p=>(p.stock||0)>0);
+  sel.innerHTML = available.length
+    ? available.map(p=>'<option value="'+p.id+'">'+p.name+' — '+fmt(cleanPrice(p.price||'0'))+'</option>').join('')
+    : '<option disabled>Sin stock disponible</option>';
 }
 
 async function registrarVenta() {
   const prodId   = parseInt(document.getElementById('v-producto').value);
-  const cantidad = parseInt(document.getElementById('v-cantidad').value) || 1;
+  const cantidad = parseInt(document.getElementById('v-cantidad').value)||1;
   const cliente  = document.getElementById('v-cliente').value.trim().toUpperCase();
   const telefono = document.getElementById('v-telefono').value.trim();
   const direccion= document.getElementById('v-direccion').value.trim().toUpperCase();
+  const comuna   = document.getElementById('v-comuna').value.trim().toUpperCase();
   const pago     = document.getElementById('v-pago').value;
   const msg      = document.getElementById('form-msg');
 
-  const comuna   = document.getElementById('v-comuna').value.trim().toUpperCase();
-
-  if (!cliente || !telefono || !direccion || !comuna) {
-    msg.className='form-msg err'; msg.textContent='Completa todos los campos del cliente.'; return;
+  if (!cliente||!telefono||!direccion||!comuna) {
+    msg.className='form-msg err'; msg.textContent='Completa todos los campos.'; return;
+  }
+  const p = products.find(p=>p.id===prodId);
+  if (!p||(p.stock||0)<=0) {
+    msg.className='form-msg err'; msg.textContent='Producto sin stock.'; return;
+  }
+  if (cantidad>(p.stock||0)) {
+    msg.className='form-msg err'; msg.textContent='Solo hay '+p.stock+' unidad(es) disponibles.'; return;
   }
 
-  const p = products.find(p => p.id === prodId);
-  if (!p || (p.stock||0) <= 0) {
-    msg.className='form-msg err'; msg.textContent='Ese producto no tiene stock disponible.'; return;
-  }
-  if (cantidad > (p.stock||0)) {
-    msg.className='form-msg err'; msg.textContent=`Solo hay ${p.stock} unidad(es) disponibles.`; return;
-  }
+  const btn = document.querySelector('.btn-submit');
+  btn.disabled=true; btn.textContent='Registrando...';
 
-  const btn = document.getElementById('btn-vender');
-  btn.disabled = true; btn.textContent = 'Registrando...';
-
-  p.stock = (p.stock||0) - cantidad;
-  p.vendidos = (p.vendidos||0) + cantidad;
-
-  const nuevaVenta = {
+  p.stock=(p.stock||0)-cantidad;
+  p.vendidos=(p.vendidos||0)+cantidad;
+  ventas.push({
     fecha: new Date().toLocaleDateString('es-CL'),
     vendedor: currentUser,
     producto: p.name,
-    cantidad,
-    cliente,
-    telefono,
-    direccion,
-    comuna,
-    pago,
-    monto: cleanPrice(p.price||'0') * cantidad,
-  };
-  ventas.push(nuevaVenta);
+    cantidad, cliente, telefono, direccion, comuna, pago,
+    monto: cleanPrice(p.price||'0')*cantidad,
+  });
 
   try {
     await Promise.all([
-      setDoc(doc(db,'tienda','productos'), { lista: products }),
-      setDoc(doc(db,'tienda','ventas'), { lista: ventas }),
+      db.doc('tienda/productos').set({lista:products}),
+      db.doc('tienda/ventas').set({lista:ventas}),
     ]);
-    msg.className='form-msg ok'; msg.textContent=`✅ Venta de "${p.name}" registrada correctamente.`;
+    msg.className='form-msg ok'; msg.textContent='✅ Venta de "'+p.name+'" registrada.';
     document.getElementById('v-cliente').value='';
     document.getElementById('v-telefono').value='+56';
     document.getElementById('v-direccion').value='';
     document.getElementById('v-comuna').value='';
     document.getElementById('v-cantidad').value='1';
-    renderStock();
-    renderProductSelect();
-    setTimeout(() => { msg.textContent=''; }, 4000);
+    setTimeout(()=>{msg.textContent='';},4000);
   } catch(e) {
     msg.className='form-msg err'; msg.textContent='Error al guardar. Intenta de nuevo.';
   } finally {
@@ -347,53 +288,32 @@ async function registrarVenta() {
 
 function renderHistorial() {
   const el = document.getElementById('historial-vendedor');
-  const misVentas = ventas.filter(v => v.vendedor === currentUser);
-  if (!misVentas.length) {
-    el.innerHTML='<div class="empty-state">No tienes ventas registradas aún.</div>'; return;
-  }
-  el.innerHTML = `
-    <table class="hist-table">
-      <thead>
-        <tr>
-          <th>Fecha</th><th>Producto</th><th>Cant.</th><th>Cliente</th><th>Teléfono</th><th>Dirección</th><th>Comuna</th><th>Pago</th><th>Monto</th><th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${[...misVentas].reverse().map(v => {
-          const anulada = v.anulada === true;
-          return `
-          <tr style="${anulada?'opacity:0.5;':''}">
-            <td style="color:var(--muted);white-space:nowrap;">${v.fecha||'—'}</td>
-            <td style="font-weight:500;${anulada?'text-decoration:line-through;':''}">${v.producto||'—'}</td>
-            <td style="color:var(--muted);text-align:center;">${v.cantidad||1}</td>
-            <td>${v.cliente||'—'}</td>
-            <td style="color:var(--muted);">${v.telefono||'—'}</td>
-            <td style="color:var(--muted);">${v.direccion||'—'}</td>
-            <td style="color:var(--muted);">${v.comuna||'—'}</td>
-            <td style="color:var(--muted);">${v.pago||'—'}</td>
-            <td style="${anulada?'color:var(--muted);text-decoration:line-through;':'color:var(--good);font-weight:500;'}">${fmt(v.monto||0)}</td>
-            <td>
-              ${anulada
-                ? `<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>
-                   ${v.observacion ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${v.observacion}</div>` : ''}`
-                : '<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>'}
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>`;
+  const mis = ventas.filter(v=>v.vendedor===currentUser);
+  if (!mis.length) { el.innerHTML='<div class="empty-state">No tienes ventas registradas aún.</div>'; return; }
+  el.innerHTML='<table class="hist-table"><thead><tr>'+
+    ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado'].map(h=>'<th>'+h+'</th>').join('')+
+    '</tr></thead><tbody>'+
+    [...mis].reverse().map(v=>{
+      const an=v.anulada===true;
+      return '<tr style="'+(an?'opacity:0.5;':'')+'">'+
+        '<td style="color:var(--muted);white-space:nowrap;">'+(v.fecha||'—')+'</td>'+
+        '<td style="font-weight:500;'+(an?'text-decoration:line-through;':'')+'">'+( v.producto||'—')+'</td>'+
+        '<td style="color:var(--muted);text-align:center;">'+(v.cantidad||1)+'</td>'+
+        '<td>'+(v.cliente||'—')+'</td>'+
+        '<td style="color:var(--muted);">'+(v.telefono||'—')+'</td>'+
+        '<td style="color:var(--muted);">'+(v.direccion||'—')+'</td>'+
+        '<td style="color:var(--muted);">'+(v.comuna||'—')+'</td>'+
+        '<td style="color:var(--muted);">'+(v.pago||'—')+'</td>'+
+        '<td style="color:'+(an?'var(--muted)':'var(--good)')+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
+        '<td>'+(an
+          ?'<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'')
+          :'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>')+'</td>'+
+        '</tr>';
+    }).join('')+'</tbody></table>';
 }
 
-document.getElementById('login-btn').addEventListener('click', doLogin);
-document.getElementById('user-input').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('pw-input').focus(); });
-document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-
-window.switchTab = switchTab;
-window.logout = logout;
-
-document.getElementById('login-btn').addEventListener('click', doLogin);
-document.getElementById('user-input').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('pw-input').focus(); });
-document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('user-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pw-input').focus();});
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
 const savedUser = sessionStorage.getItem('tvbox_vendedor');
 if (savedUser) {
@@ -403,10 +323,6 @@ if (savedUser) {
   document.getElementById('vendedor-nombre').textContent = currentUser;
   loadData();
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('btn-vender').addEventListener('click', registrarVenta);
-});
 </script>
 </body>
 </html>
