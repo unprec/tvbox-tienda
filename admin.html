@@ -487,13 +487,17 @@ function renderList() {
         </div>
         <div class="field">
           <label>Agregar unidades al stock</label>
-          <input type="number" min="0" value="0" id="add-stock-${p.id}" placeholder="0"
-            onchange="addStock(${p.id}, parseInt(this.value)||0); this.value=0;">
+          <div style="display:flex;gap:6px;">
+            <input type="number" min="0" value="0" id="add-stock-${p.id}" placeholder="0" style="flex:1;">
+            <button onclick="addStock(${p.id}, parseInt(document.getElementById('add-stock-${p.id}').value)||0); document.getElementById('add-stock-${p.id}').value=0;" style="padding:0 14px;background:rgba(62,207,142,0.15);color:var(--good);border:1px solid rgba(62,207,142,0.3);border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap;">+ Agregar</button>
+          </div>
         </div>
         <div class="field">
           <label style="color:var(--amber);">Quitar unidades (corrección)</label>
-          <input type="number" min="0" value="0" placeholder="0" style="border-color:rgba(245,166,35,0.3);"
-            onchange="removeStock(${p.id}, parseInt(this.value)||0); this.value=0;">
+          <div style="display:flex;gap:6px;">
+            <input type="number" min="0" value="0" id="rm-stock-${p.id}" placeholder="0" style="flex:1;border-color:rgba(245,166,35,0.3);">
+            <button onclick="removeStock(${p.id}, parseInt(document.getElementById('rm-stock-${p.id}').value)||0); document.getElementById('rm-stock-${p.id}').value=0;" style="padding:0 14px;background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.3);border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap;">− Quitar</button>
+          </div>
         </div>
         <div class="field field-full">
           <label>Descripción</label>
@@ -650,7 +654,7 @@ function renderHistorial() {
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
         <tr>
-          ${['Fecha','Vendedor','Producto','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;">${h}</th>`).join('')}
+          ${['Fecha','Vendedor','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>`<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;">${h}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
@@ -662,6 +666,7 @@ function renderHistorial() {
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);white-space:nowrap;">${v.fecha||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--accent);">${v.vendedor||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);font-weight:500;">${v.producto||'—'}</td>
+            <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);text-align:center;">${v.cantidad||1}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text);">${v.cliente||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${v.telefono||'—'}</td>
             <td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">${v.direccion||'—'}</td>
