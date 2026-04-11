@@ -552,7 +552,11 @@ function renderHistorial() {
         '<td style="color:var(--muted);">'+(v.comuna||'—')+'</td>'+
         '<td style="color:var(--muted);">'+(v.pago||'—')+'</td>'+
         '<td style="color:'+(an?'var(--muted)':'var(--good)')+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
-        '<td>'+(an?'<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':''):'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>')+'</td>'+
+        '<td>'+(an
+          ?'<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'')
+          :(v.estado==='prospecto'
+            ?'<span style="font-size:11px;background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:20px;">Prospecto</span>'
+            :'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Venta</span>'))+'</td>'+
         '<td>'+(an?'':'<button onclick="anularVenta('+i+')" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>')+'</td>'+
         '</tr>';
     }).join('')+'</tbody></table>';

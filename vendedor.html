@@ -102,8 +102,8 @@
         <div class="section-sub">Selecciona un producto para registrar la venta.</div>
         <div class="stock-grid" id="stock-grid"></div>
 
-        <div class="section-title" style="margin-bottom:0.25rem;">Registrar venta</div>
-        <div class="section-sub">Completa los datos del cliente.</div>
+        <div class="section-title" style="margin-bottom:0.25rem;">Registrar prospecto</div>
+        <div class="section-sub">Completa los datos del cliente. El stock se descuenta al confirmar la venta.</div>
         <div class="sale-form">
           <div class="form-grid">
             <div class="field"><label>Producto</label><select id="v-producto"></select></div>
@@ -120,7 +120,7 @@
             <div class="field"><label>Teléfono</label><input type="text" id="v-telefono" value="+56"></div>
             <div class="field field-full"><label>Dirección de envío</label><input type="text" id="v-direccion" placeholder="Calle, número" style="text-transform:uppercase;"></div>
             <div class="field"><label>Comuna</label><input type="text" id="v-comuna" placeholder="ej: Santiago" style="text-transform:uppercase;"></div>
-            <div class="field field-full"><button class="btn-submit" onclick="registrarVenta()">Confirmar venta →</button></div>
+            <div class="field field-full"><button class="btn-submit" onclick="registrarProspecto()">Registrar prospecto →</button></div>
           </div>
           <div class="form-msg" id="form-msg"></div>
         </div>
@@ -233,7 +233,7 @@ function renderProductSelect() {
     : '<option disabled>Sin stock disponible</option>';
 }
 
-async function registrarVenta() {
+async function registrarProspecto() {
   const prodId   = parseInt(document.getElementById('v-producto').value);
   const cantidad = parseInt(document.getElementById('v-cantidad').value)||1;
   const cliente  = document.getElementById('v-cliente').value.trim().toUpperCase();
@@ -247,32 +247,23 @@ async function registrarVenta() {
     msg.className='form-msg err'; msg.textContent='Completa todos los campos.'; return;
   }
   const p = products.find(p=>p.id===prodId);
-  if (!p||(p.stock||0)<=0) {
-    msg.className='form-msg err'; msg.textContent='Producto sin stock.'; return;
-  }
-  if (cantidad>(p.stock||0)) {
-    msg.className='form-msg err'; msg.textContent='Solo hay '+p.stock+' unidad(es) disponibles.'; return;
-  }
+  if (!p) { msg.className='form-msg err'; msg.textContent='Selecciona un producto.'; return; }
 
   const btn = document.querySelector('.btn-submit');
   btn.disabled=true; btn.textContent='Registrando...';
 
-  p.stock=(p.stock||0)-cantidad;
-  p.vendidos=(p.vendidos||0)+cantidad;
   ventas.push({
     fecha: new Date().toLocaleDateString('es-CL'),
     vendedor: currentUser,
     producto: p.name,
     cantidad, cliente, telefono, direccion, comuna, pago,
     monto: cleanPrice(p.price||'0')*cantidad,
+    estado: 'prospecto',
   });
 
   try {
-    await Promise.all([
-      db.doc('tienda/productos').set({lista:products}),
-      db.doc('tienda/ventas').set({lista:ventas}),
-    ]);
-    msg.className='form-msg ok'; msg.textContent='✅ Venta de "'+p.name+'" registrada.';
+    await db.doc('tienda/ventas').set({lista:ventas});
+    msg.className='form-msg ok'; msg.textContent='📋 Prospecto de "'+p.name+'" registrado.';
     document.getElementById('v-cliente').value='';
     document.getElementById('v-telefono').value='+56';
     document.getElementById('v-direccion').value='';
@@ -282,19 +273,51 @@ async function registrarVenta() {
   } catch(e) {
     msg.className='form-msg err'; msg.textContent='Error al guardar. Intenta de nuevo.';
   } finally {
-    btn.disabled=false; btn.textContent='Confirmar venta →';
+    btn.disabled=false; btn.textContent='Registrar prospecto →';
   }
+}
+
+async function confirmarVenta(index) {
+  const v = ventas[index];
+  if (!v || v.estado !== 'prospecto') return;
+  const p = products.find(p=>p.name===v.producto);
+  if (!p) { alert('Producto no encontrado.'); return; }
+  const cantidad = v.cantidad||1;
+  if ((p.stock||0) < cantidad) { alert('Stock insuficiente. Solo hay '+( p.stock||0)+' unidad(es).'); return; }
+  if (!confirm('¿Confirmar venta de "'+v.producto+'" x'+cantidad+' para '+v.cliente+'?\n\nSe descontará el stock.')) return;
+  v.estado = 'venta';
+  p.stock = (p.stock||0) - cantidad;
+  p.vendidos = (p.vendidos||0) + cantidad;
+  try {
+    await Promise.all([
+      db.doc('tienda/ventas').set({lista:ventas}),
+      db.doc('tienda/productos').set({lista:products}),
+    ]);
+    renderHistorial();
+  } catch(e) { alert('Error: '+e.message); }
 }
 
 function renderHistorial() {
   const el = document.getElementById('historial-vendedor');
   const mis = ventas.filter(v=>v.vendedor===currentUser);
-  if (!mis.length) { el.innerHTML='<div class="empty-state">No tienes ventas registradas aún.</div>'; return; }
+  if (!mis.length) { el.innerHTML='<div class="empty-state">No tienes registros aún.</div>'; return; }
   el.innerHTML='<table class="hist-table"><thead><tr>'+
-    ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado'].map(h=>'<th>'+h+'</th>').join('')+
+    ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>'<th>'+h+'</th>').join('')+
     '</tr></thead><tbody>'+
-    [...mis].reverse().map(v=>{
-      const an=v.anulada===true;
+    [...mis].reverse().map((v,ri)=>{
+      const i = ventas.length - 1 - [...mis].reverse().indexOf(v);
+      const realIndex = ventas.indexOf(v);
+      const an = v.anulada===true;
+      const es = v.estado||'venta';
+      let estadoBadge, accion='';
+      if (an) {
+        estadoBadge='<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'');
+      } else if (es==='prospecto') {
+        estadoBadge='<span style="font-size:11px;background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:20px;">Prospecto</span>';
+        accion='<button onclick="confirmarVenta('+realIndex+')" style="font-size:11px;padding:4px 10px;background:rgba(62,207,142,0.15);color:var(--good);border:1px solid rgba(62,207,142,0.3);border-radius:7px;cursor:pointer;white-space:nowrap;">✓ Confirmar venta</button>';
+      } else {
+        estadoBadge='<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Venta</span>';
+      }
       return '<tr style="'+(an?'opacity:0.5;':'')+'">'+
         '<td style="color:var(--muted);white-space:nowrap;">'+(v.fecha||'—')+'</td>'+
         '<td style="font-weight:500;'+(an?'text-decoration:line-through;':'')+'">'+( v.producto||'—')+'</td>'+
@@ -304,10 +327,9 @@ function renderHistorial() {
         '<td style="color:var(--muted);">'+(v.direccion||'—')+'</td>'+
         '<td style="color:var(--muted);">'+(v.comuna||'—')+'</td>'+
         '<td style="color:var(--muted);">'+(v.pago||'—')+'</td>'+
-        '<td style="color:'+(an?'var(--muted)':'var(--good)')+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
-        '<td>'+(an
-          ?'<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'')
-          :'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Válida</span>')+'</td>'+
+        '<td style="color:'+(an?'var(--muted)':(es==='prospecto'?'var(--amber)':'var(--good)'))+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
+        '<td>'+estadoBadge+'</td>'+
+        '<td>'+accion+'</td>'+
         '</tr>';
     }).join('')+'</tbody></table>';
 }
