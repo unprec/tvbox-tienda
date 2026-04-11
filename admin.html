@@ -92,8 +92,9 @@
   .btn-preview { font-size: 14px; padding: 10px 20px; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; display: inline-flex; align-items: center; }
   .btn-save { font-size: 14px; font-weight: 500; padding: 10px 24px; background: var(--accent); color: white; border: none; border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
   .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .hist-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; }
+  .hist-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; white-space: nowrap; }
   .hist-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .hist-wrap { overflow-x: auto; width: 100%; }
 
   /* MODAL */
   .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; padding:2rem; }
@@ -556,7 +557,7 @@ function renderUsuarios() {
 function renderHistorial() {
   const el=document.getElementById('historial-list');
   if(!ventas.length){el.innerHTML='<p style="font-size:13px;color:var(--muted);padding:1rem 0;">No hay ventas aún.</p>';return;}
-  el.innerHTML='<table class="hist-table"><thead><tr>'+
+  el.innerHTML='<div class="hist-wrap"><table class="hist-table"><thead><tr>'+
     ['Fecha','Vendedor','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Descuento','Monto','Estado',''].map(h=>'<th>'+h+'</th>').join('')+
     '</tr></thead><tbody>'+
     [...ventas].reverse().map((v,ri)=>{
@@ -581,7 +582,7 @@ function renderHistorial() {
             :'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Venta</span>'))+'</td>'+
         '<td>'+(an?'':'<button onclick="anularVenta('+i+')" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>')+'</td>'+
         '</tr>';
-    }).join('')+'</tbody></table>';
+    }).join('')+'</tbody></table></div>';
 }
 
 async function anularVenta(index) {

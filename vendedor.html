@@ -58,9 +58,9 @@
   .form-msg.ok { color: var(--good); }
   .form-msg.err { color: var(--bad); }
   .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .hist-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; }
+  .hist-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; white-space: nowrap; }
   .hist-table td { padding: 10px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
-  .empty-state { text-align: center; padding: 2rem; color: var(--muted); font-size: 13px; }
+  .hist-wrap { overflow-x: auto; width: 100%; }
 </style>
 </head>
 <body>
@@ -327,7 +327,7 @@ function renderHistorial() {
   const el = document.getElementById('historial-vendedor');
   const mis = ventas.filter(v=>v.vendedor===currentUser);
   if (!mis.length) { el.innerHTML='<div class="empty-state">No tienes registros aún.</div>'; return; }
-  el.innerHTML='<table class="hist-table"><thead><tr>'+
+  el.innerHTML='<div class="hist-wrap"><table class="hist-table"><thead><tr>'+
     ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Descuento','Monto','Estado',''].map(h=>'<th>'+h+'</th>').join('')+
     '</tr></thead><tbody>'+
     [...mis].reverse().map(v=>{
@@ -357,7 +357,7 @@ function renderHistorial() {
         '<td>'+estadoBadge+'</td>'+
         '<td>'+accion+'</td>'+
         '</tr>';
-    }).join('')+'</tbody></table>';
+    }).join('')+'</tbody></table></div>';
 }
 
 document.getElementById('user-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pw-input').focus();});
