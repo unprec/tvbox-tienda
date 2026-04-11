@@ -572,7 +572,7 @@ function renderHistorial() {
         '<td style="color:var(--muted);">'+(v.direccion||'—')+'</td>'+
         '<td style="color:var(--muted);">'+(v.comuna||'—')+'</td>'+
         '<td style="color:var(--muted);">'+(v.pago||'—')+'</td>'+
-        '<td style="color:'+(an?'var(--muted)':'var(--good)')+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
+        '<td style="color:'+(an?'var(--muted)':(v.estado==='prospecto'?'var(--amber)':'var(--good)'))+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
         '<td>'+(an
           ?'<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'')
           :(v.estado==='prospecto'

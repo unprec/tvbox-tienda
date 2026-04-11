@@ -303,22 +303,20 @@ function renderHistorial() {
   const mis = ventas.filter(v=>v.vendedor===currentUser);
   if (!mis.length) { el.innerHTML='<div class="empty-state">No tienes registros aún.</div>'; return; }
   el.innerHTML='<table class="hist-table"><thead><tr>'+
-    ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado'].map(h=>'<th>'+h+'</th>').join('')+
+    ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Monto','Estado',''].map(h=>'<th>'+h+'</th>').join('')+
     '</tr></thead><tbody>'+
     [...mis].reverse().map(v=>{
       const realIndex = ventas.indexOf(v);
       const an = v.anulada===true;
       const es = v.estado||'venta';
-      let estadoCell;
+      let estadoBadge, accion='';
       if (an) {
-        estadoCell='<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'');
+        estadoBadge='<span style="font-size:11px;background:rgba(255,102,102,0.1);color:var(--bad);border:1px solid rgba(255,102,102,0.2);padding:3px 8px;border-radius:20px;">Anulada</span>'+(v.observacion?'<div style="font-size:11px;color:var(--muted);margin-top:3px;">'+v.observacion+'</div>':'');
       } else if (es==='prospecto') {
-        estadoCell='<div style="display:flex;flex-direction:column;gap:5px;">'+
-          '<span style="font-size:11px;background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:20px;display:inline-block;">Prospecto</span>'+
-          '<button onclick="confirmarVenta('+realIndex+')" style="font-size:11px;padding:5px 10px;background:rgba(62,207,142,0.15);color:var(--good);border:1px solid rgba(62,207,142,0.3);border-radius:7px;cursor:pointer;white-space:nowrap;">✓ Confirmar venta</button>'+
-          '</div>';
+        estadoBadge='<span style="font-size:11px;background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:20px;">Prospecto</span>';
+        accion='<button onclick="confirmarVenta('+realIndex+')" style="font-size:11px;padding:4px 10px;background:rgba(62,207,142,0.15);color:var(--good);border:1px solid rgba(62,207,142,0.3);border-radius:7px;cursor:pointer;white-space:nowrap;">✓ Confirmar</button>';
       } else {
-        estadoCell='<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Venta</span>';
+        estadoBadge='<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Venta</span>';
       }
       return '<tr style="'+(an?'opacity:0.5;':'')+'">'+
         '<td style="color:var(--muted);white-space:nowrap;">'+(v.fecha||'—')+'</td>'+
@@ -330,7 +328,8 @@ function renderHistorial() {
         '<td style="color:var(--muted);">'+(v.comuna||'—')+'</td>'+
         '<td style="color:var(--muted);">'+(v.pago||'—')+'</td>'+
         '<td style="color:'+(an?'var(--muted)':(es==='prospecto'?'var(--amber)':'var(--good)'))+';font-weight:500;'+(an?'text-decoration:line-through;':'')+';">'+fmt(v.monto||0)+'</td>'+
-        '<td>'+estadoCell+'</td>'+
+        '<td>'+estadoBadge+'</td>'+
+        '<td>'+accion+'</td>'+
         '</tr>';
     }).join('')+'</tbody></table>';
 }
