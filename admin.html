@@ -388,12 +388,14 @@ function updateMetrics() {
 }
 
 function addProduct() {
-  products.push({id:nextId++,name:'Nuevo modelo',desc:'Descripción.',price:'0',tag:'amber',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0,margen:30});
+  products.push({id:nextId++,name:'Nuevo modelo',desc:'Descripción.',price:'0',tag:'amber',featured:false,oculto:false,photos:[],video:'',stock:0,costo:0,vendidos:0,margen:30});
   renderList(); updateMetrics(); markUnsaved();
 }
 
 async function removeProduct(id) {
   if (products.length<=1) return alert('Debe haber al menos un producto.');
+  const p = products.find(p=>p.id===id);
+  if (p && (p.stock||0) > 0) { await modalConfirm('No puedes eliminar "'+p.name+'" porque tiene '+p.stock+' unidad(es) en stock. Primero quita el stock.'); return; }
   if (!await modalConfirm('¿Eliminar este producto?', true)) return;
   products = products.filter(p=>p.id!==id);
   renderList(); updateMetrics(); markUnsaved();
@@ -493,6 +495,7 @@ function renderList() {
         '</div>' +
         '<div class="prod-card-actions">' +
           '<span class="stock-badge '+(stock>0?'ok':'out')+'" id="sb-'+p.id+'">'+(stock>0?'En stock · '+stock+' uds.':'Sin stock')+'</span>' +
+          (p.oculto?'<span style="font-size:11px;background:rgba(122,122,144,0.15);color:var(--muted);border:1px solid rgba(122,122,144,0.3);padding:3px 8px;border-radius:20px;">Oculto</span>':'') +
           (products.length>1?'<button class="btn-del" onclick="event.stopPropagation();removeProduct('+p.id+')">Eliminar</button>':'') +
         '</div>' +
       '</div>' +
@@ -513,6 +516,7 @@ function renderList() {
         '<div class="field field-full"><label>Descripción</label><input type="text" value="'+p.desc+'" oninput="updateField('+p.id+',\'desc\',this.value)"></div>' +
         '<div class="field"><label>Etiqueta</label><select onchange="updateField('+p.id+',\'tag\',this.value)">'+tagOpts+'</select></div>' +
         '<div class="field" style="display:flex;align-items:flex-end;"><div class="featured-row"><input type="checkbox" id="ft-'+p.id+'" '+(p.featured?'checked':'')+' onchange="updateField('+p.id+',\'featured\',this.checked)"><label for="ft-'+p.id+'">Destacado</label></div></div>' +
+        '<div class="field" style="display:flex;align-items:flex-end;"><div class="featured-row"><input type="checkbox" id="oc-'+p.id+'" '+(p.oculto?'checked':'')+' onchange="updateField('+p.id+',\'oculto\',this.checked);renderList();"><label for="oc-'+p.id+'" style="color:var(--muted);">Ocultar en tienda</label></div></div>' +
         '<div class="field field-full" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;margin-top:4px;"><label style="font-size:12px;color:var(--accent);margin-bottom:8px;display:block;">Fotos (links de Cloudinary)</label>'+photoInputs+'</div>' +
         '<div class="field field-full"><label>Video de YouTube (link)</label><input type="text" placeholder="https://youtube.com/watch?v=..." value="'+(p.video||'')+'" oninput="updateField('+p.id+',\'video\',this.value)"></div>' +
       '</div></div></div>';

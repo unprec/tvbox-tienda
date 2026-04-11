@@ -134,7 +134,7 @@
 <div class="hero">
   <div class="hero-chip">Listos para usar desde el primer día</div>
   <h1>TV Box que funcionan<br>de <em>verdad</em></h1>
-  <p>Cada equipo sale limpio y optimizado. Sin apps basura, sin nada que lo haga lento. Enchúfalo, conectalo a tu red WIFI y listo.</p>
+  <p>Cada equipo sale limpio y optimizado. Sin apps basura, sin nada que lo haga lento. Enchúfalo y listo.</p>
   <a href="#productos" class="hero-cta">Ver equipos disponibles →</a>
 </div>
 
@@ -253,8 +253,9 @@ function cleanPrice(v) {
 function renderGrid(products, cfg) {
   const grid = document.getElementById('products-grid');
   const wa = (cfg.wa || '56912345678').replace(/[^0-9]/g,'');
-  if (!products.length) { grid.innerHTML = '<div class="no-products">No hay productos disponibles.</div>'; return; }
-  grid.innerHTML = products.map(p => {
+  const visibles = products.filter(p => !p.oculto);
+  if (!visibles.length) { grid.innerHTML = '<div class="no-products">No hay productos disponibles.</div>'; return; }
+  grid.innerHTML = visibles.map(p => {
     const photos = (p.photos || []).filter(u => u && u.trim());
     const videoId = getYoutubeId(p.video || '');
     let mediaHtml = photos.length > 0
