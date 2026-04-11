@@ -327,11 +327,10 @@ async function logout() {
 
 async function loadData() {
   try {
-    const [psnap, csnap, usnap, vsnap] = await Promise.all([
+    const [psnap, csnap, usnap] = await Promise.all([
       db.doc('tienda/productos').get(),
       db.doc('tienda/config').get(),
       db.doc('tienda/usuarios').get(),
-      db.doc('tienda/ventas').get(),
     ]);
     const backup = localStorage.getItem('tvbox_backup');
     if (backup) {
@@ -345,10 +344,17 @@ async function loadData() {
       products = psnap.exists ? (psnap.data().lista || []) : getDefaultProducts();
     }
     usuarios = usnap.exists ? (usnap.data().lista || []) : [];
-    ventas   = vsnap.exists ? (vsnap.data().lista || []) : [];
     document.getElementById('wa-cfg').value = csnap.exists ? (csnap.data().wa || '') : '';
     nextId = products.reduce((m,p) => Math.max(m,p.id),0) + 1;
     renderList(); updateMetrics();
+
+    // Ventas en tiempo real
+    db.doc('tienda/ventas').onSnapshot(snap => {
+      ventas = snap.exists ? (snap.data().lista || []) : [];
+      updateMetrics();
+      const histTab = document.getElementById('tab-historial');
+      if (histTab && histTab.classList.contains('active')) renderHistorial();
+    });
   } catch(e) { alert('Error al cargar: '+e.message); }
 }
 
