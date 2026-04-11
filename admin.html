@@ -591,9 +591,12 @@ async function anularVenta(index) {
   const v=ventas[index];
   if(!v||v.anulada)return;
   v.anulada=true; v.observacion=obs||'Sin observación';
-  const cant=v.cantidad||1;
-  const p=products.find(p=>p.name===v.producto);
-  if(p){p.stock=(p.stock||0)+cant;p.vendidos=Math.max(0,(p.vendidos||0)-cant);}
+  // Solo devolver stock si era una venta confirmada, no un prospecto
+  if (v.estado !== 'prospecto') {
+    const cant=v.cantidad||1;
+    const p=products.find(p=>p.name===v.producto);
+    if(p){p.stock=(p.stock||0)+cant;p.vendidos=Math.max(0,(p.vendidos||0)-cant);}
+  }
   try {
     await Promise.all([
       db.doc('tienda/ventas').set({lista:ventas}),
