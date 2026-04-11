@@ -348,6 +348,7 @@ async function loadData() {
     document.getElementById('wa-cfg').value = csnap.exists ? (csnap.data().wa || '') : '';
     nextId = products.reduce((m,p) => Math.max(m,p.id),0) + 1;
     renderList(); updateMetrics();
+    products.forEach(p => calcPrecio(p.id));
 
     // Ventas en tiempo real
     db.doc('tienda/ventas').onSnapshot(snap => {
@@ -361,9 +362,9 @@ async function loadData() {
 
 function getDefaultProducts() {
   return [
-    {id:1,name:'TV Box Básico',desc:'YouTube, Netflix, series.',price:'0',tag:'amber',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0},
-    {id:2,name:'TV Box Pro',desc:'Más fluido, mejor imagen.',price:'0',tag:'blue',featured:true,photos:[],video:'',stock:0,costo:0,vendidos:0},
-    {id:3,name:'TV Box Ultra',desc:'La mejor experiencia posible.',price:'0',tag:'green',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0},
+    {id:1,name:'TV Box Básico',desc:'YouTube, Netflix, series.',price:'0',tag:'amber',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0,margen:30},
+    {id:2,name:'TV Box Pro',desc:'Más fluido, mejor imagen.',price:'0',tag:'blue',featured:true,photos:[],video:'',stock:0,costo:0,vendidos:0,margen:30},
+    {id:3,name:'TV Box Ultra',desc:'La mejor experiencia posible.',price:'0',tag:'green',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0,margen:30},
   ];
 }
 
@@ -387,7 +388,7 @@ function updateMetrics() {
 }
 
 function addProduct() {
-  products.push({id:nextId++,name:'Nuevo modelo',desc:'Descripción.',price:'0',tag:'amber',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0});
+  products.push({id:nextId++,name:'Nuevo modelo',desc:'Descripción.',price:'0',tag:'amber',featured:false,photos:[],video:'',stock:0,costo:0,vendidos:0,margen:30});
   renderList(); updateMetrics(); markUnsaved();
 }
 
@@ -426,6 +427,44 @@ async function removeStock(id) {
   updateMetrics(); markUnsaved();
 }
 
+function calcPrecio(id) {
+  const p = products.find(p=>p.id===id);
+  if (!p) return;
+  const costoConIva = cleanPrice(document.getElementById('costo-'+id).value) || p.costo || 0;
+  const margen = parseInt(document.getElementById('margen-'+id).value) || p.margen || 30;
+  if (!costoConIva) {
+    document.getElementById('precio-calc-'+id).textContent = '—';
+    document.getElementById('ganancia-calc-'+id).textContent = '—';
+    document.getElementById('iva-calc-'+id).textContent = '—';
+    return;
+  }
+  const costoNeto = costoConIva / 1.19;
+  const ivaCredito = costoConIva - costoNeto;
+  const precioNeto = costoNeto * (1 + margen / 100);
+  const precioFinal = Math.round(precioNeto * 1.19);
+  const ivaDebito = precioFinal - precioNeto;
+  const ivaSII = ivaDebito - ivaCredito;
+  const ganancia = precioNeto - costoNeto;
+  document.getElementById('precio-calc-'+id).textContent = fmt(precioFinal);
+  document.getElementById('ganancia-calc-'+id).textContent = fmt(Math.round(ganancia));
+  document.getElementById('iva-calc-'+id).textContent = fmt(Math.round(ivaSII));
+}
+
+function aplicarPrecio(id) {
+  const p = products.find(p=>p.id===id);
+  if (!p) return;
+  const costoConIva = cleanPrice(document.getElementById('costo-'+id).value) || 0;
+  const margen = parseInt(document.getElementById('margen-'+id).value) || 30;
+  if (!costoConIva) return;
+  const costoNeto = costoConIva / 1.19;
+  const precioNeto = costoNeto * (1 + margen / 100);
+  const precioFinal = Math.round(precioNeto * 1.19);
+  p.price = precioFinal.toString();
+  const priceInput = document.getElementById('price-'+id);
+  if (priceInput) priceInput.value = fmt(precioFinal);
+  updateMetrics(); markUnsaved();
+}
+
 function toggleCard(id) {
   const body = document.getElementById('body-'+id);
   const arrow = document.getElementById('arrow-'+id);
@@ -460,8 +499,15 @@ function renderList() {
       '<div class="prod-card-body" id="body-'+p.id+'">' +
       '<div class="fields-grid" style="padding-top:1rem;">' +
         '<div class="field"><label>Nombre</label><input type="text" value="'+p.name+'" oninput="updateField('+p.id+',\'name\',this.value)"></div>' +
-        '<div class="field"><label>Precio de venta</label><input type="text" value="'+fmt(cleanPrice(p.price||'0'))+'" onblur="this.value=fmt(cleanPrice(this.value));updateField('+p.id+',\'price\',cleanPrice(this.value).toString())"></div>' +
-        '<div class="field"><label>Costo por unidad ($)</label><input type="text" value="'+fmt(p.costo||0)+'" onblur="this.value=fmt(cleanPrice(this.value));updateField('+p.id+',\'costo\',cleanPrice(this.value))"></div>' +
+        '<div class="field"><label>Costo con IVA ($)</label><input type="text" id="costo-'+p.id+'" value="'+fmt(p.costo||0)+'" onblur="this.value=fmt(cleanPrice(this.value));updateField('+p.id+',\'costo\',cleanPrice(this.value));calcPrecio('+p.id+')" oninput="calcPrecio('+p.id+')"></div>' +
+        '<div class="field"><label>% Ganancia deseada</label><div style="display:flex;gap:6px;align-items:center;"><input type="number" id="margen-'+p.id+'" min="0" max="999" value="'+(p.margen||30)+'" oninput="updateField('+p.id+',\'margen\',parseInt(this.value)||0);calcPrecio('+p.id+')" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:\'DM Sans\',sans-serif;outline:none;width:80px;"><span style="font-size:13px;color:var(--muted);">%</span></div></div>' +
+        '<div class="field field-full"><div style="background:var(--bg);border:1px solid rgba(79,142,247,0.25);border-radius:8px;padding:10px 14px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;">' +
+          '<div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Precio sugerido</div><div id="precio-calc-'+p.id+'" style="font-size:16px;font-weight:700;font-family:\'Syne\',sans-serif;color:var(--accent);">—</div></div>' +
+          '<div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;">Ganancia líquida</div><div id="ganancia-calc-'+p.id+'" style="font-size:14px;font-weight:600;color:var(--good);">—</div></div>' +
+          '<div><div style="font-size:11px;color:var(--muted);margin-bottom:2px;">IVA a pagar al SII</div><div id="iva-calc-'+p.id+'" style="font-size:14px;color:var(--muted);">—</div></div>' +
+          '<button onclick="aplicarPrecio('+p.id+')" style="margin-left:auto;padding:7px 16px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-family:\'DM Sans\',sans-serif;font-weight:500;">Aplicar precio →</button>' +
+        '</div></div>' +
+        '<div class="field"><label>Precio de venta ($)</label><input type="text" id="price-'+p.id+'" value="'+fmt(cleanPrice(p.price||'0'))+'" onblur="this.value=fmt(cleanPrice(this.value));updateField('+p.id+',\'price\',cleanPrice(this.value).toString())"></div>' +
         '<div class="field"><label>Agregar al stock (actual: '+stock+')</label><div style="display:flex;gap:6px;"><input type="number" min="0" value="0" id="add-stock-'+p.id+'" placeholder="0" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:\'DM Sans\',sans-serif;outline:none;"><button onclick="addStock('+p.id+')" style="padding:0 14px;background:rgba(62,207,142,0.15);color:var(--good);border:1px solid rgba(62,207,142,0.3);border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap;">+ Agregar</button></div></div>' +
         '<div class="field"><label style="color:var(--amber);">Quitar del stock (corrección)</label><div style="display:flex;gap:6px;"><input type="number" min="0" value="0" id="rm-stock-'+p.id+'" placeholder="0" style="flex:1;background:var(--bg);border:1px solid rgba(245,166,35,0.3);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:\'DM Sans\',sans-serif;outline:none;"><button onclick="removeStock('+p.id+')" style="padding:0 14px;background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.3);border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap;">− Quitar</button></div></div>' +
         '<div class="field field-full"><label>Descripción</label><input type="text" value="'+p.desc+'" oninput="updateField('+p.id+',\'desc\',this.value)"></div>' +
