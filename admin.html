@@ -184,7 +184,10 @@
       </div>
 
       <div class="tab-content" id="tab-historial">
-        <div class="section-title">Historial de ventas</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:0.25rem;">
+          <div class="section-title">Historial de ventas</div>
+          <button onclick="exportarExcel()" style="font-size:13px;padding:8px 16px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.25);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;">⬇️ Exportar Excel</button>
+        </div>
         <div class="section-sub">Todas las ventas de todos los vendedores.</div>
         <div id="historial-list"></div>
       </div>
@@ -244,6 +247,7 @@
 </div>
 
 <!-- Firebase compat SDK -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
@@ -504,6 +508,30 @@ function copiarPost() {
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 2500);
   });
+}
+
+function exportarExcel() {
+  if (!ventas.length) { alert('No hay ventas para exportar.'); return; }
+  const datos = ventas.map(v => ({
+    'Fecha': v.fecha||'',
+    'Vendedor': v.vendedor||'',
+    'Producto': v.producto||'',
+    'Cantidad': v.cantidad||1,
+    'Cliente': v.cliente||'',
+    'Teléfono': v.telefono||'',
+    'Dirección': v.direccion||'',
+    'Comuna': v.comuna||'',
+    'Pago': v.pago||'',
+    'Descuento': v.descuento||0,
+    'Monto': v.monto||0,
+    'Estado': v.anulada ? 'Anulada' : (v.estado==='prospecto' ? 'Prospecto' : 'Venta'),
+    'Observación': v.observacion||'',
+  }));
+  const ws = XLSX.utils.json_to_sheet(datos);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
+  const fecha = new Date().toLocaleDateString('es-CL').replace(/\//g,'-');
+  XLSX.writeFile(wb, 'historial-ventas-'+fecha+'.xlsx');
 }
 
 function calcPrecio(id) {
