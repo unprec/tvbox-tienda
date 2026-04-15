@@ -152,6 +152,8 @@
             <div class="metric-card"><div class="metric-label">Inversión en stock</div><div class="metric-val amber" id="m-inversion">$0</div><div class="metric-sub">costo × stock actual</div></div>
             <div class="metric-card"><div class="metric-label">Margen promedio</div><div class="metric-val blue" id="m-margen">0%</div><div class="metric-sub">por unidad</div></div>
             <div class="metric-card"><div class="metric-label">Unidades en stock</div><div class="metric-val" id="m-stock" style="color:var(--text)">0</div><div class="metric-sub">total disponibles</div></div>
+            <div class="metric-card"><div class="metric-label">Total en prospectos</div><div class="metric-val amber" id="m-total-prospectos">$0</div><div class="metric-sub">pendientes de confirmar</div></div>
+            <div class="metric-card"><div class="metric-label">Total en ventas</div><div class="metric-val green" id="m-total-ventas">$0</div><div class="metric-sub">ventas confirmadas</div></div>
             <div class="metric-card"><div class="metric-label">Vendidos por producto</div><div id="m-vendidos-list" style="margin-top:6px;"></div></div>
           </div>
           <div>
@@ -402,6 +404,17 @@ function updateMetrics() {
   document.getElementById('m-margen').textContent = mCnt>0 ? Math.round(mSum/mCnt)+'%' : '0%';
   document.getElementById('m-stock').textContent = tot;
   document.getElementById('m-stock').style.color = tot>0?'var(--good)':'var(--bad)';
+
+  // Total prospectos y ventas
+  let totalProspectos = 0, totalVentas = 0;
+  ventas.forEach(v => {
+    if (v.anulada) return;
+    if (v.estado === 'prospecto') totalProspectos += v.monto||0;
+    else if (v.estado === 'venta') totalVentas += v.monto||0;
+  });
+  document.getElementById('m-total-prospectos').textContent = fmt(totalProspectos);
+  document.getElementById('m-total-ventas').textContent = fmt(totalVentas);
+
   document.getElementById('m-vendidos-list').innerHTML = products.map(p =>
     '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;">' +
     '<span style="color:var(--muted)">'+p.name+'</span>' +
