@@ -240,7 +240,7 @@ function actualizarTotal() {
   const descuento = cleanPrice(document.getElementById('v-descuento').value)||0;
   const p = products.find(p=>p.id===prodId);
   if (!p) { document.getElementById('v-total').textContent='$0'; return; }
-  const total = Math.max(0, cleanPrice(p.price||'0') * cantidad - descuento);
+  const total = Math.max(0, cleanPrice(p.price||'0') * cantidad - (descuento * cantidad));
   document.getElementById('v-total').textContent = fmt(total);
 }
 
@@ -276,7 +276,7 @@ async function registrarProspecto() {
   btn.disabled=true; btn.textContent='Registrando...';
 
   const montoBase = cleanPrice(p.price||'0') * cantidad;
-  const montoFinal = Math.max(0, montoBase - descuento);
+  const montoFinal = Math.max(0, montoBase - (descuento * cantidad));
 
   // Descontar stock al crear prospecto
   p.stock = (p.stock||0) - cantidad;

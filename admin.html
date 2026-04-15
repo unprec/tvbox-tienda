@@ -719,12 +719,11 @@ async function anularVenta(index) {
   const cant=v.cantidad||1;
   const p=products.find(p=>p.name===v.producto);
   if(p){
-    // Siempre devolver stock (fue descontado al crear prospecto o al confirmar venta)
-    p.stock=(p.stock||0)+cant;
+    // Devolver stock solo si fue descontado (prospecto nuevo o venta)
+    const debeDevolver = v.estado==='venta' || v.stockDescontado===true;
+    if(debeDevolver) p.stock=(p.stock||0)+cant;
     // Solo restar vendidos si era una venta confirmada
-    if(v.estado==='venta'){
-      p.vendidos=Math.max(0,(p.vendidos||0)-cant);
-    }
+    if(v.estado==='venta') p.vendidos=Math.max(0,(p.vendidos||0)-cant);
   }
   try {
     await Promise.all([
