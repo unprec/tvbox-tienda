@@ -343,8 +343,7 @@ async function logout() {
 
 async function loadData() {
   try {
-    const [psnap, csnap, usnap] = await Promise.all([
-      db.doc('tienda/productos').get(),
+    const [csnap, usnap] = await Promise.all([
       db.doc('tienda/config').get(),
       db.doc('tienda/usuarios').get(),
     ]);
@@ -353,17 +352,21 @@ async function loadData() {
       if (await modalConfirm('Hay cambios no guardados de una sesión anterior. ¿Recuperarlos?')) {
         products = JSON.parse(backup); markUnsaved();
       } else {
-        products = psnap.exists ? (psnap.data().lista || []) : getDefaultProducts();
         localStorage.removeItem('tvbox_backup');
       }
-    } else {
-      products = psnap.exists ? (psnap.data().lista || []) : getDefaultProducts();
     }
     usuarios = usnap.exists ? (usnap.data().lista || []) : [];
     document.getElementById('wa-cfg').value = csnap.exists ? (csnap.data().wa || '') : '';
-    nextId = products.reduce((m,p) => Math.max(m,p.id),0) + 1;
-    renderList(); updateMetrics();
-    products.forEach(p => calcPrecio(p.id));
+
+    // Productos en tiempo real — no sobrescribir si hay cambios pendientes
+    db.doc('tienda/productos').onSnapshot(snap => {
+      if (!unsaved) {
+        products = snap.exists ? (snap.data().lista || []) : getDefaultProducts();
+        nextId = products.reduce((m,p) => Math.max(m,p.id),0) + 1;
+        renderList(); updateMetrics();
+        products.forEach(p => calcPrecio(p.id));
+      }
+    });
 
     // Ventas en tiempo real
     db.doc('tienda/ventas').onSnapshot(snap => {
