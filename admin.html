@@ -137,6 +137,7 @@
       <button class="tab active" id="tab-btn-productos" onclick="switchTab('productos',this)">📦 Productos</button>
       <button class="tab" id="tab-btn-usuarios" onclick="switchTab('usuarios',this)">👥 Usuarios</button>
       <button class="tab" id="tab-btn-historial" onclick="switchTab('historial',this)">📋 Historial</button>
+      <button class="tab" id="tab-btn-gestion" onclick="switchTab('gestion',this)">🏢 Gestión</button>
       <button class="tab" id="tab-btn-config" onclick="switchTab('config',this)">⚙️ Configuración</button>
     </div>
   </div>
@@ -192,6 +193,92 @@
         </div>
         <div class="section-sub">Todas las ventas de todos los vendedores.</div>
         <div id="historial-list"></div>
+      </div>
+
+      <div class="tab-content" id="tab-gestion">
+
+        <!-- PROVEEDORES -->
+        <div style="margin-bottom:2rem;">
+          <div class="section-title">🏭 Proveedores</div>
+          <div class="section-sub">Registra tus proveedores y asígnalos a productos.</div>
+          <div class="add-mov">
+            <div style="font-size:14px;font-weight:500;margin-bottom:1rem;">Nuevo proveedor</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex-wrap:wrap;">
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Nombre</label><input type="text" id="prov-nombre" placeholder="Nombre empresa o persona" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Teléfono</label><input type="text" id="prov-tel" placeholder="+56 9 XXXX XXXX" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">RUT / Contacto</label><input type="text" id="prov-rut" placeholder="12.345.678-9" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+              <button onclick="agregarProveedor()" style="padding:9px 20px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;">+ Agregar</button>
+              <span id="prov-msg" style="font-size:13px;"></span>
+            </div>
+          </div>
+          <div id="proveedores-list"></div>
+        </div>
+
+        <!-- GASTOS -->
+        <div style="margin-bottom:2rem;border-top:1px solid var(--border);padding-top:2rem;">
+          <div class="section-title">💸 Gastos</div>
+          <div class="section-sub">Registra gastos operacionales del negocio.</div>
+          <div class="add-mov">
+            <div style="font-size:14px;font-weight:500;margin-bottom:1rem;">Nuevo gasto</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;flex-wrap:wrap;">
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Descripción</label><input type="text" id="gasto-desc" placeholder="ej: Despacho, Embalaje" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Categoría</label>
+                <select id="gasto-cat" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+                  <option value="Despacho">Despacho</option>
+                  <option value="Embalaje">Embalaje</option>
+                  <option value="Publicidad">Publicidad</option>
+                  <option value="Transporte">Transporte</option>
+                  <option value="Arriendo">Arriendo</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Monto ($)</label><input type="text" id="gasto-monto" placeholder="$0" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Fecha</label><input type="date" id="gasto-fecha" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+              <button onclick="agregarGasto()" style="padding:9px 20px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;">+ Registrar</button>
+              <span id="gasto-msg" style="font-size:13px;"></span>
+            </div>
+          </div>
+          <div id="gastos-list"></div>
+        </div>
+
+        <!-- DEUDAS -->
+        <div style="margin-bottom:2rem;border-top:1px solid var(--border);padding-top:2rem;">
+          <div class="section-title">📋 Deudas con proveedores</div>
+          <div class="section-sub">Controla lo que debes por consignación o compras a crédito.</div>
+          <div class="add-mov">
+            <div style="font-size:14px;font-weight:500;margin-bottom:1rem;">Nueva deuda</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex-wrap:wrap;">
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Proveedor</label>
+                <select id="deuda-prov" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"><option value="">Sin proveedores</option></select>
+              </div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Descripción</label><input type="text" id="deuda-desc" placeholder="ej: 10 TVR3 consignación" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Monto ($)</label><input type="text" id="deuda-monto" placeholder="$0" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"></div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:10px;align-items:center;">
+              <button onclick="agregarDeuda()" style="padding:9px 20px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;">+ Agregar deuda</button>
+              <span id="deuda-msg" style="font-size:13px;"></span>
+            </div>
+          </div>
+          <div id="deudas-list"></div>
+        </div>
+
+        <!-- COMPROBANTES -->
+        <div style="border-top:1px solid var(--border);padding-top:2rem;">
+          <div class="section-title">🧾 Comprobantes</div>
+          <div class="section-sub">Genera un comprobante de venta para el cliente.</div>
+          <div class="add-mov">
+            <div style="font-size:14px;font-weight:500;margin-bottom:1rem;">Buscar venta para generar comprobante</div>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:flex-end;">
+              <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;">Buscar por nombre de cliente</label><input type="text" id="comp-buscar" placeholder="Nombre del cliente..." style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;" oninput="buscarVentaComprobante()"></div>
+            </div>
+          </div>
+          <div id="comprobantes-list"></div>
+        </div>
+
       </div>
 
       <div class="tab-content" id="tab-config">
@@ -320,6 +407,7 @@ function switchTab(name, el) {
   el.classList.add('active');
   if (name === 'historial') renderHistorial();
   if (name === 'usuarios') renderUsuarios();
+  if (name === 'gestion') loadGestion();
 }
 
 async function doLogin() {
@@ -545,6 +633,226 @@ function exportarExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Ventas');
   const fecha = new Date().toLocaleDateString('es-CL').replace(/\//g,'-');
   XLSX.writeFile(wb, 'historial-ventas-'+fecha+'.xlsx');
+}
+
+let proveedores = [], gastos = [], deudas = [];
+
+function renderProveedores() {
+  const el = document.getElementById('proveedores-list');
+  if (!proveedores.length) { el.innerHTML='<p style="font-size:13px;color:var(--muted);padding:0.5rem 0;">No hay proveedores registrados.</p>'; return; }
+  el.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;"><thead><tr>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Nombre</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Teléfono</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">RUT/Contacto</th>'+
+    '<th style="padding:8px 10px;border-bottom:1px solid var(--border);"></th></tr></thead><tbody>'+
+    proveedores.map((p,i)=>
+      '<tr><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:500;">'+p.nombre+'</td>'+
+      '<td style="padding:10px;border-bottom:1px solid var(--border);color:var(--muted);">'+( p.tel||'—')+'</td>'+
+      '<td style="padding:10px;border-bottom:1px solid var(--border);color:var(--muted);">'+(p.rut||'—')+'</td>'+
+      '<td style="padding:10px;border-bottom:1px solid var(--border);text-align:right;"><button onclick="eliminarProveedor('+i+')" style="font-size:12px;padding:4px 10px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;">Eliminar</button></td></tr>'
+    ).join('')+'</tbody></table>';
+  actualizarSelectProveedores();
+}
+
+async function agregarProveedor() {
+  const nombre = document.getElementById('prov-nombre').value.trim();
+  const tel = document.getElementById('prov-tel').value.trim();
+  const rut = document.getElementById('prov-rut').value.trim();
+  const msg = document.getElementById('prov-msg');
+  if (!nombre) { msg.style.color='var(--bad)'; msg.textContent='El nombre es obligatorio.'; return; }
+  proveedores.push({nombre, tel, rut});
+  await db.doc('tienda/proveedores').set({lista:proveedores});
+  document.getElementById('prov-nombre').value='';
+  document.getElementById('prov-tel').value='';
+  document.getElementById('prov-rut').value='';
+  msg.style.color='var(--good)'; msg.textContent='Proveedor agregado.';
+  setTimeout(()=>{msg.textContent='';},2500);
+  renderProveedores();
+}
+
+async function eliminarProveedor(i) {
+  if (!await modalConfirm('¿Eliminar este proveedor?', true)) return;
+  proveedores.splice(i,1);
+  await db.doc('tienda/proveedores').set({lista:proveedores});
+  renderProveedores();
+}
+
+function actualizarSelectProveedores() {
+  const sel = document.getElementById('deuda-prov');
+  if (!sel) return;
+  sel.innerHTML = proveedores.length
+    ? proveedores.map((p,i)=>'<option value="'+i+'">'+p.nombre+'</option>').join('')
+    : '<option value="">Sin proveedores</option>';
+}
+
+function renderGastos() {
+  const el = document.getElementById('gastos-list');
+  if (!gastos.length) { el.innerHTML='<p style="font-size:13px;color:var(--muted);padding:0.5rem 0;">No hay gastos registrados.</p>'; return; }
+  const total = gastos.reduce((s,g)=>s+(g.monto||0),0);
+  el.innerHTML='<div style="font-size:13px;color:var(--bad);margin-bottom:8px;font-weight:500;">Total gastos: '+fmt(total)+'</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Fecha</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Descripción</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Categoría</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Monto</th>'+
+    '<th style="padding:8px 10px;border-bottom:1px solid var(--border);"></th></tr></thead><tbody>'+
+    [...gastos].reverse().map((g,ri)=>{
+      const i=gastos.length-1-ri;
+      return '<tr>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">'+( g.fecha||'—')+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);">'+g.desc+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--muted);">'+g.cat+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);color:var(--bad);font-weight:500;">-'+fmt(g.monto||0)+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);text-align:right;"><button onclick="eliminarGasto('+i+')" style="font-size:12px;padding:4px 10px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;">Eliminar</button></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+async function agregarGasto() {
+  const desc = document.getElementById('gasto-desc').value.trim();
+  const cat = document.getElementById('gasto-cat').value;
+  const monto = cleanPrice(document.getElementById('gasto-monto').value)||0;
+  const fecha = document.getElementById('gasto-fecha').value;
+  const msg = document.getElementById('gasto-msg');
+  if (!desc||!monto) { msg.style.color='var(--bad)'; msg.textContent='Completa descripción y monto.'; return; }
+  gastos.push({desc, cat, monto, fecha: fecha||new Date().toLocaleDateString('es-CL')});
+  await db.doc('tienda/gastos').set({lista:gastos});
+  document.getElementById('gasto-desc').value='';
+  document.getElementById('gasto-monto').value='';
+  msg.style.color='var(--good)'; msg.textContent='Gasto registrado.';
+  setTimeout(()=>{msg.textContent='';},2500);
+  renderGastos();
+}
+
+async function eliminarGasto(i) {
+  if (!await modalConfirm('¿Eliminar este gasto?', true)) return;
+  gastos.splice(i,1);
+  await db.doc('tienda/gastos').set({lista:gastos});
+  renderGastos();
+}
+
+function renderDeudas() {
+  const el = document.getElementById('deudas-list');
+  const pendientes = deudas.filter(d=>!d.pagada);
+  const totalDeuda = pendientes.reduce((s,d)=>s+(d.monto||0),0);
+  if (!deudas.length) { el.innerHTML='<p style="font-size:13px;color:var(--muted);padding:0.5rem 0;">No hay deudas registradas.</p>'; return; }
+  el.innerHTML='<div style="font-size:13px;color:var(--amber);margin-bottom:8px;font-weight:500;">Total pendiente: '+fmt(totalDeuda)+'</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Proveedor</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Descripción</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Monto</th>'+
+    '<th style="text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;">Estado</th>'+
+    '<th style="padding:8px 10px;border-bottom:1px solid var(--border);"></th></tr></thead><tbody>'+
+    [...deudas].reverse().map((d,ri)=>{
+      const i=deudas.length-1-ri;
+      return '<tr style="'+(d.pagada?'opacity:0.5;':'')+'">'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);font-weight:500;">'+(d.proveedor||'—')+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);">'+d.desc+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);color:'+(d.pagada?'var(--muted)':'var(--amber)')+';font-weight:500;">'+fmt(d.monto||0)+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);">'+(d.pagada
+          ?'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Pagada</span>'
+          :'<span style="font-size:11px;background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:20px;">Pendiente</span>')+'</td>'+
+        '<td style="padding:9px 10px;border-bottom:1px solid var(--border);display:flex;gap:6px;justify-content:flex-end;">'+
+          (!d.pagada?'<button onclick="pagarDeuda('+i+')" style="font-size:12px;padding:4px 10px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);border-radius:7px;cursor:pointer;">✓ Pagar</button>':'')+
+          '<button onclick="eliminarDeuda('+i+')" style="font-size:12px;padding:4px 10px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;">Eliminar</button>'+
+        '</td></tr>';
+    }).join('')+'</tbody></table>';
+}
+
+async function agregarDeuda() {
+  const provIdx = document.getElementById('deuda-prov').value;
+  const desc = document.getElementById('deuda-desc').value.trim();
+  const monto = cleanPrice(document.getElementById('deuda-monto').value)||0;
+  const msg = document.getElementById('deuda-msg');
+  if (!desc||!monto) { msg.style.color='var(--bad)'; msg.textContent='Completa descripción y monto.'; return; }
+  const proveedor = proveedores[parseInt(provIdx)]?.nombre || 'Sin proveedor';
+  deudas.push({proveedor, desc, monto, fecha:new Date().toLocaleDateString('es-CL'), pagada:false});
+  await db.doc('tienda/deudas').set({lista:deudas});
+  document.getElementById('deuda-desc').value='';
+  document.getElementById('deuda-monto').value='';
+  msg.style.color='var(--good)'; msg.textContent='Deuda registrada.';
+  setTimeout(()=>{msg.textContent='';},2500);
+  renderDeudas();
+}
+
+async function pagarDeuda(i) {
+  if (!await modalConfirm('¿Marcar esta deuda como pagada?')) return;
+  deudas[i].pagada = true;
+  await db.doc('tienda/deudas').set({lista:deudas});
+  renderDeudas();
+}
+
+async function eliminarDeuda(i) {
+  if (!await modalConfirm('¿Eliminar esta deuda?', true)) return;
+  deudas.splice(i,1);
+  await db.doc('tienda/deudas').set({lista:deudas});
+  renderDeudas();
+}
+
+function buscarVentaComprobante() {
+  const q = document.getElementById('comp-buscar').value.trim().toLowerCase();
+  const el = document.getElementById('comprobantes-list');
+  if (!q) { el.innerHTML=''; return; }
+  const results = ventas.filter(v=>!v.anulada && v.estado==='venta' && v.cliente && v.cliente.toLowerCase().includes(q));
+  if (!results.length) { el.innerHTML='<p style="font-size:13px;color:var(--muted);padding:0.5rem 0;">No se encontraron ventas.</p>'; return; }
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">'+
+    results.map(v=>{
+      const idx = ventas.indexOf(v);
+      return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">'+
+        '<div><div style="font-weight:500;font-size:14px;">'+v.cliente+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);">'+v.producto+' × '+(v.cantidad||1)+' · '+v.fecha+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:12px;">'+
+        '<div style="font-weight:700;color:var(--good);">'+fmt(v.monto||0)+'</div>'+
+        '<button onclick="generarComprobante('+idx+')" style="padding:7px 14px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:500;">🧾 Generar</button>'+
+        '</div></div>';
+    }).join('')+'</div>';
+}
+
+function generarComprobante(index) {
+  const v = ventas[index];
+  if (!v) return;
+  const wa = document.getElementById('wa-cfg').value || '';
+  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Comprobante</title>'+
+    '<style>body{font-family:Arial,sans-serif;max-width:400px;margin:40px auto;padding:20px;color:#111;}'+
+    'h1{font-size:22px;margin-bottom:4px;}'+
+    '.sub{color:#666;font-size:13px;margin-bottom:24px;}'+
+    'table{width:100%;border-collapse:collapse;margin-bottom:20px;}'+
+    'td{padding:8px 0;border-bottom:1px solid #eee;font-size:14px;}'+
+    'td:last-child{text-align:right;font-weight:500;}'+
+    '.total{font-size:18px;font-weight:700;}'+
+    '.footer{font-size:12px;color:#999;text-align:center;margin-top:24px;}</style></head><body>'+
+    '<h1>RG SmartBox</h1><div class="sub">Comprobante de venta · '+v.fecha+'</div>'+
+    '<table>'+
+    '<tr><td>Cliente</td><td>'+v.cliente+'</td></tr>'+
+    '<tr><td>Teléfono</td><td>'+(v.telefono||'—')+'</td></tr>'+
+    '<tr><td>Dirección</td><td>'+(v.direccion||'—')+', '+(v.comuna||'')+'</td></tr>'+
+    '<tr><td>Producto</td><td>'+v.producto+'</td></tr>'+
+    '<tr><td>Cantidad</td><td>'+(v.cantidad||1)+'</td></tr>'+
+    (v.descuento>0?'<tr><td>Descuento</td><td>-'+fmt(v.descuento)+'</td></tr>':'')+
+    '<tr><td>Método de pago</td><td>'+(v.pago||'—')+'</td></tr>'+
+    '<tr><td class="total">Total</td><td class="total">'+fmt(v.monto||0)+'</td></tr>'+
+    '</table>'+
+    '<div class="footer">RG SmartBox · '+wa+'<br>¡Gracias por tu compra!</div>'+
+    '</body></html>';
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>w.print(), 500);
+}
+
+async function loadGestion() {
+  const [psnap, gsnap, dsnap] = await Promise.all([
+    db.doc('tienda/proveedores').get(),
+    db.doc('tienda/gastos').get(),
+    db.doc('tienda/deudas').get(),
+  ]);
+  proveedores = psnap.exists ? (psnap.data().lista||[]) : [];
+  gastos = gsnap.exists ? (gsnap.data().lista||[]) : [];
+  deudas = dsnap.exists ? (dsnap.data().lista||[]) : [];
+  renderProveedores();
+  renderGastos();
+  renderDeudas();
+  // Set today's date on gasto
+  document.getElementById('gasto-fecha').value = new Date().toISOString().split('T')[0];
 }
 
 function calcPrecio(id) {
