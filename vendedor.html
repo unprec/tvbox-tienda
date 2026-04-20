@@ -179,6 +179,12 @@
       <div class="tab-content" id="tab-historial">
         <div class="section-title">Mis ventas</div>
         <div class="section-sub">Historial de ventas registradas por ti.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;">
+          <input type="text" id="v-hist-nombre" placeholder="Buscar por cliente..." oninput="filtrarHistorialVendedor()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;flex:1;min-width:160px;">
+          <input type="date" id="v-hist-desde" onchange="filtrarHistorialVendedor()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+          <input type="date" id="v-hist-hasta" onchange="filtrarHistorialVendedor()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+          <button onclick="document.getElementById('v-hist-nombre').value='';document.getElementById('v-hist-desde').value='';document.getElementById('v-hist-hasta').value='';filtrarHistorialVendedor();" style="font-size:13px;padding:8px 12px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Limpiar</button>
+        </div>
         <div id="historial-vendedor"></div>
       </div>
 
@@ -479,14 +485,46 @@ async function confirmarVenta(index) {
   } catch(e) { alert('Error: '+e.message); }
 }
 
+let vHistPage = 1;
+let vHistNombre = '';
+let vHistDesde = '';
+let vHistHasta = '';
+
+function filtrarHistorialVendedor() {
+  vHistNombre = document.getElementById('v-hist-nombre').value.trim().toLowerCase();
+  vHistDesde = document.getElementById('v-hist-desde').value;
+  vHistHasta = document.getElementById('v-hist-hasta').value;
+  vHistPage = 1;
+  renderHistorial();
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const parts = str.split('-');
+  if (parts.length === 3) return new Date(parts[0], parts[1]-1, parts[2]);
+  const parts2 = str.split('/');
+  if (parts2.length === 3) return new Date(parts2[2], parts2[1]-1, parts2[0]);
+  return null;
+}
+
 function renderHistorial() {
   const el = document.getElementById('historial-vendedor');
-  const mis = ventas.filter(v=>v.vendedor===currentUser);
+  let mis = ventas.filter(v=>v.vendedor===currentUser).reverse();
   if (!mis.length) { el.innerHTML='<div class="empty-state">No tienes registros aún.</div>'; return; }
+
+  if (vHistNombre) mis = mis.filter(v=>(v.cliente||'').toLowerCase().includes(vHistNombre));
+  if (vHistDesde) { const d=new Date(vHistDesde); mis=mis.filter(v=>{const fd=parseDate(v.fecha);return fd&&fd>=d;}); }
+  if (vHistHasta) { const h=new Date(vHistHasta);h.setHours(23,59,59); mis=mis.filter(v=>{const fd=parseDate(v.fecha);return fd&&fd<=h;}); }
+
+  const total = mis.length;
+  const totalPag = Math.max(1, Math.ceil(total/10));
+  if (vHistPage > totalPag) vHistPage = totalPag;
+  const pagina = mis.slice((vHistPage-1)*10, vHistPage*10);
+
   el.innerHTML='<div class="hist-wrap"><table class="hist-table"><thead><tr>'+
     ['Fecha','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Descuento','Monto','Estado',''].map(h=>'<th>'+h+'</th>').join('')+
     '</tr></thead><tbody>'+
-    [...mis].reverse().map(v=>{
+    pagina.map(v=>{
       const realIndex = ventas.indexOf(v);
       const an = v.anulada===true;
       const es = v.estado||'venta';
@@ -513,7 +551,13 @@ function renderHistorial() {
         '<td>'+estadoBadge+'</td>'+
         '<td>'+accion+'</td>'+
         '</tr>';
-    }).join('')+'</tbody></table></div>';
+    }).join('')+'</tbody></table></div>'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px;">'+
+    '<div style="font-size:12px;color:var(--muted);">'+total+' resultado(s) · Página '+vHistPage+' de '+totalPag+'</div>'+
+    '<div style="display:flex;gap:6px;">'+
+    (vHistPage>1?'<button onclick="vHistPage--;renderHistorial();" style="padding:6px 14px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;">← Anterior</button>':'')+
+    (vHistPage<totalPag?'<button onclick="vHistPage++;renderHistorial();" style="padding:6px 14px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;">Siguiente →</button>':'')+
+    '</div></div>';
 }
 
 document.getElementById('user-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('pw-input').focus();});

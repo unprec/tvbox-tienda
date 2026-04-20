@@ -192,6 +192,12 @@
           <button onclick="exportarExcel()" style="font-size:13px;padding:8px 16px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.25);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;">⬇️ Exportar Excel</button>
         </div>
         <div class="section-sub">Todas las ventas de todos los vendedores.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;">
+          <input type="text" id="hist-filtro-nombre" placeholder="Buscar por cliente..." oninput="filtrarHistorial()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;flex:1;min-width:160px;">
+          <input type="date" id="hist-filtro-desde" onchange="filtrarHistorial()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+          <input type="date" id="hist-filtro-hasta" onchange="filtrarHistorial()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+          <button onclick="document.getElementById('hist-filtro-nombre').value='';document.getElementById('hist-filtro-desde').value='';document.getElementById('hist-filtro-hasta').value='';filtrarHistorial();" style="font-size:13px;padding:8px 12px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Limpiar</button>
+        </div>
         <div id="historial-list"></div>
       </div>
 
@@ -1031,14 +1037,57 @@ function renderUsuarios() {
     ).join('')+'</tbody></table>';
 }
 
+let historialPage = 1;
+const HIST_PER_PAGE = 10;
+let histFiltroNombre = '';
+let histFiltroDesde = '';
+let histFiltroHasta = '';
+
+function filtrarHistorial() {
+  histFiltroNombre = document.getElementById('hist-filtro-nombre').value.trim().toLowerCase();
+  histFiltroDesde = document.getElementById('hist-filtro-desde').value;
+  histFiltroHasta = document.getElementById('hist-filtro-hasta').value;
+  historialPage = 1;
+  renderHistorial();
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const parts = str.split('-');
+  if (parts.length === 3) return new Date(parts[0], parts[1]-1, parts[2]);
+  const parts2 = str.split('/');
+  if (parts2.length === 3) return new Date(parts2[2], parts2[1]-1, parts2[0]);
+  return null;
+}
+
 function renderHistorial() {
   const el=document.getElementById('historial-list');
   if(!ventas.length){el.innerHTML='<p style="font-size:13px;color:var(--muted);padding:1rem 0;">No hay ventas aún.</p>';return;}
-  el.innerHTML='<div class="hist-wrap"><table class="hist-table"><thead><tr>'+
+
+  // Apply filters
+  let filtradas = [...ventas].reverse().map((v,ri)=>({v, i:ventas.length-1-ri}));
+  if (histFiltroNombre) filtradas = filtradas.filter(({v})=>(v.cliente||'').toLowerCase().includes(histFiltroNombre));
+  if (histFiltroDesde) {
+    const desde = new Date(histFiltroDesde);
+    filtradas = filtradas.filter(({v})=>{ const d=parseDate(v.fecha); return d && d>=desde; });
+  }
+  if (histFiltroHasta) {
+    const hasta = new Date(histFiltroHasta);
+    hasta.setHours(23,59,59);
+    filtradas = filtradas.filter(({v})=>{ const d=parseDate(v.fecha); return d && d<=hasta; });
+  }
+
+  const total = filtradas.length;
+  const totalPaginas = Math.max(1, Math.ceil(total/HIST_PER_PAGE));
+  if (historialPage > totalPaginas) historialPage = totalPaginas;
+  const inicio = (historialPage-1)*HIST_PER_PAGE;
+  const pagina = filtradas.slice(inicio, inicio+HIST_PER_PAGE);
+
+  el.innerHTML=
+    '<div class="hist-wrap"><table class="hist-table"><thead><tr>'+
     ['Fecha','Vendedor','Producto','Cant.','Cliente','Teléfono','Dirección','Comuna','Pago','Descuento','Monto','Estado',''].map(h=>'<th>'+h+'</th>').join('')+
     '</tr></thead><tbody>'+
-    [...ventas].reverse().map((v,ri)=>{
-      const i=ventas.length-1-ri;
+    pagina.map(({v,i})=>{
       const an=v.anulada===true;
       return '<tr style="'+(an?'opacity:0.5;':'')+'">'+
         '<td style="color:var(--muted);white-space:nowrap;">'+(v.fecha||'—')+'</td>'+
@@ -1059,7 +1108,19 @@ function renderHistorial() {
             :'<span style="font-size:11px;background:rgba(62,207,142,0.1);color:var(--good);border:1px solid rgba(62,207,142,0.2);padding:3px 8px;border-radius:20px;">Venta</span>'))+'</td>'+
         '<td>'+(an?'':'<button onclick="anularVenta('+i+')" style="font-size:11px;padding:4px 12px;background:rgba(255,102,102,0.08);color:var(--bad);border:1px solid rgba(255,102,102,0.2);border-radius:7px;cursor:pointer;white-space:nowrap;">Anular</button>')+'</td>'+
         '</tr>';
-    }).join('')+'</tbody></table></div>';
+    }).join('')+'</tbody></table></div>'+
+    // Pagination
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px;">'+
+    '<div style="font-size:12px;color:var(--muted);">'+total+' resultado(s) · Página '+historialPage+' de '+totalPaginas+'</div>'+
+    '<div style="display:flex;gap:6px;">'+
+    (historialPage>1?'<button onclick="cambiarPagina(-1)" style="padding:6px 14px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;">← Anterior</button>':'')+
+    (historialPage<totalPaginas?'<button onclick="cambiarPagina(1)" style="padding:6px 14px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;">Siguiente →</button>':'')+
+    '</div></div>';
+}
+
+function cambiarPagina(dir) {
+  historialPage += dir;
+  renderHistorial();
 }
 
 async function anularVenta(index) {
