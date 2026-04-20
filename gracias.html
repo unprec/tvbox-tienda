@@ -52,6 +52,7 @@ const FLOW_API = 'https://rg-smartbox-api.vercel.app';
 const params = new URLSearchParams(window.location.search);
 const token = params.get('token');
 const orderId = params.get('orderId');
+let waNumber = '56926259491'; // default
 
 async function guardarVenta(compra, estado) {
   try {
@@ -106,10 +107,22 @@ async function guardarVenta(compra, estado) {
   }
 }
 
+async function cargarConfig() {
+  try {
+    const snap = await getDoc(doc(db, 'tienda', 'config'));
+    if (snap.exists() && snap.data().wa) {
+      waNumber = snap.data().wa.replace(/[^0-9]/g, '');
+    }
+  } catch (e) {
+    console.log('Usando WhatsApp por defecto');
+  }
+}
+
 async function verificar() {
   const compra = JSON.parse(sessionStorage.getItem('compra') || '{}');
   const acciones = document.getElementById('acciones');
-  const waNumber = '56912345678'; // TODO: obtener desde config
+  
+  await cargarConfig();
 
   if (!token) {
     document.getElementById('icon').textContent = '✅';
