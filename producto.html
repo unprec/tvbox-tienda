@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RG SmartBox</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a1a; --surface: #0d1526; --surface2: #111e35;
+    --border: rgba(255,255,255,0.07); --accent: #f5c400;
+    --good: #3ecf8e; --bad: #f66; --text: #f0f0f5; --muted: #7a7a90;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
+  .logo span { color: var(--accent); }
+  .btn-back { font-size: 13px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; cursor: pointer; text-decoration: none; }
+  .page { max-width: 900px; margin: 0 auto; padding: 2rem; }
+  .product-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+  @media(max-width:680px){ .product-layout { grid-template-columns: 1fr; } }
+
+  /* Gallery */
+  .gallery-wrap { position: relative; border-radius: 16px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
+  .gallery-main { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .gallery-thumbs { display: flex; gap: 8px; padding: 10px; background: var(--surface2); }
+  .gallery-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; opacity: 0.6; transition: all 0.2s; }
+  .gallery-thumb.active { border-color: var(--accent); opacity: 1; }
+  .gallery-placeholder { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 80px; background: var(--surface); border-radius: 16px; }
+
+  /* Info */
+  .prod-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .prod-tag.amber { background: rgba(245,196,0,0.12); color: var(--accent); border: 1px solid rgba(245,196,0,0.25); }
+  .prod-tag.blue { background: rgba(79,142,247,0.12); color: #4f8ef7; border: 1px solid rgba(79,142,247,0.25); }
+  .prod-tag.green { background: rgba(62,207,142,0.12); color: var(--good); border: 1px solid rgba(62,207,142,0.25); }
+  .prod-name { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+  .prod-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+  .prod-price { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+  .prod-price-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .stock-badge { display: inline-block; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 6px; margin-bottom: 20px; }
+  .stock-badge.ok { color: var(--good); background: rgba(62,207,142,0.1); border: 1px solid rgba(62,207,142,0.25); }
+  .stock-badge.out { color: var(--bad); background: rgba(255,102,102,0.1); border: 1px solid rgba(255,102,102,0.25); }
+
+  /* Quantity */
+  .qty-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .qty-label { font-size: 13px; color: var(--muted); }
+  .qty-ctrl { display: flex; align-items: center; gap: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .qty-btn { width: 40px; height: 40px; background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .qty-btn:hover { background: rgba(255,255,255,0.05); }
+  .qty-val { width: 44px; text-align: center; font-size: 16px; font-weight: 600; font-family: 'Syne', sans-serif; }
+  .total-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .total-label { font-size: 13px; color: var(--muted); }
+  .total-val { font-size: 20px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--good); }
+
+  /* Buttons */
+  .btn-pay { width: 100%; background: var(--accent); color: #050a1a; border: none; border-radius: 12px; padding: 15px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s; }
+  .btn-pay:hover { opacity: 0.9; }
+  .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-wa { width: 100%; background: #25d366; color: white; border: none; border-radius: 12px; padding: 13px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .pay-msg { font-size: 13px; text-align: center; margin-top: 10px; min-height: 20px; }
+  .pay-msg.err { color: var(--bad); }
+  .pay-msg.ok { color: var(--good); }
+
+  /* Email input */
+  .email-wrap { margin-bottom: 16px; }
+  .email-wrap label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .email-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; }
+  .email-wrap input:focus { border-color: var(--accent); }
+
+  /* Trust */
+  .trust { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .trust-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+
+  #loading { text-align: center; padding: 4rem; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">RG <span>Smart</span>Box</div>
+  <a href="index.html" class="btn-back">← Volver</a>
+</nav>
+
+<div class="page">
+  <div id="loading">Cargando producto...</div>
+  <div id="product-wrap" style="display:none;">
+    <div class="product-layout">
+      <div id="media-col"></div>
+      <div id="info-col"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDhyUnOAfLaenLwC_5ekkPJjvlhpLg_RS4",
+  authDomain: "tvbox-tienda.firebaseapp.com",
+  projectId: "tvbox-tienda",
+  storageBucket: "tvbox-tienda.firebasestorage.app",
+  messagingSenderId: "621421300942",
+  appId: "1:621421300942:web:a7eef5446ac6343f1c949f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const FLOW_API = 'https://rg-smartbox-api.vercel.app';
+const TAG_LABELS = { amber:'Más vendido', blue:'Nuevo', green:'Oferta', red:'Liquidación' };
+
+function fmt(n) {
+  return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',minimumFractionDigits:0}).format(Math.round(n));
+}
+function cleanPrice(v) {
+  if (typeof v === 'number') return v;
+  return parseInt(String(v).replace(/\D/g,'')) || 0;
+}
+function getYoutubeId(url) {
+  const m = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+// Get product ID from URL
+const params = new URLSearchParams(window.location.search);
+const prodId = parseInt(params.get('id'));
+
+let currentProduct = null;
+let waNumber = '56912345678';
+let cantidad = 1;
+
+onSnapshot(doc(db,'tienda','config'), snap => {
+  if (snap.exists()) waNumber = (snap.data().wa || '56912345678').replace(/[^0-9]/g,'');
+});
+
+onSnapshot(doc(db,'tienda','productos'), snap => {
+  const products = snap.exists() ? (snap.data().lista || []) : [];
+  const p = products.find(p => p.id === prodId);
+  if (!p) {
+    document.getElementById('loading').textContent = 'Producto no encontrado.';
+    return;
+  }
+  currentProduct = p;
+  renderProduct(p);
+  document.title = p.name + ' — RG SmartBox';
+});
+
+function renderProduct(p) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('product-wrap').style.display = 'block';
+
+  const photos = (p.photos || []).filter(u => u && u.trim());
+  const videoId = getYoutubeId(p.video || '');
+  const stock = p.stock ?? 0;
+  const precio = cleanPrice(p.price || '0');
+
+  // Media column
+  let mediaHtml = '';
+  if (photos.length > 0) {
+    mediaHtml = `
+      <div class="gallery-wrap">
+        <img id="main-photo" src="${photos[0]}" class="gallery-main" alt="${p.name}">
+        ${photos.length > 1 ? `<div class="gallery-thumbs">${photos.map((u,i) =>
+          `<img src="${u}" class="gallery-thumb ${i===0?'active':''}" onclick="setPhoto('${u}', this)">`
+        ).join('')}</div>` : ''}
+      </div>`;
+  } else {
+    mediaHtml = `<div class="gallery-placeholder">${p.tag==='blue'?'📺':'🔧'}</div>`;
+  }
+  if (videoId) {
+    mediaHtml += `<button onclick="document.getElementById('video-modal').style.display='flex'" style="margin-top:10px;width:100%;padding:10px;background:rgba(245,196,0,0.08);color:var(--accent);border:1px solid rgba(245,196,0,0.2);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;">🎬 Ver video del producto</button>
+    <div id="video-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;" onclick="this.style.display='none'">
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" allowfullscreen style="border-radius:12px;max-width:90vw;"></iframe>
+    </div>`;
+  }
+  document.getElementById('media-col').innerHTML = mediaHtml;
+
+  // Info column
+  const tagLabel = TAG_LABELS[p.tag] || '';
+  const stockBadge = stock > 0
+    ? `<div class="stock-badge ok">✅ En stock · ${stock} disponible(s)</div>`
+    : `<div class="stock-badge out">❌ Sin stock</div>`;
+
+  document.getElementById('info-col').innerHTML = `
+    ${tagLabel ? `<div class="prod-tag ${p.tag}">${tagLabel}</div>` : ''}
+    <div class="prod-name">${p.name}</div>
+    <div class="prod-desc">${p.desc || ''}</div>
+    <div class="prod-price">${fmt(precio)}</div>
+    <div class="prod-price-sub">precio final · envío a coordinar</div>
+    ${stockBadge}
+    ${stock > 0 ? `
+    <div class="qty-wrap">
+      <span class="qty-label">Cantidad:</span>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="cambiarCantidad(-1)">−</button>
+        <div class="qty-val" id="qty-display">1</div>
+        <button class="qty-btn" onclick="cambiarCantidad(1)">+</button>
+      </div>
+    </div>
+    <div class="total-box">
+      <span class="total-label">Total a pagar</span>
+      <span class="total-val" id="total-display">${fmt(precio)}</span>
+    </div>
+    <div class="email-wrap">
+      <label>Tu correo electrónico (para el comprobante de pago)</label>
+      <input type="email" id="email-input" placeholder="tucorreo@gmail.com">
+    </div>
+    <button class="btn-pay" onclick="pagarConFlow()" id="btn-pagar">
+      💳 Pagar con Flow
+    </button>
+    <div class="pay-msg" id="pay-msg"></div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);margin:8px 0;">— o —</div>
+    ` : ''}
+    <a href="https://wa.me/${waNumber}?text=Hola!%20Me%20interesa%20${encodeURIComponent(p.name)}" target="_blank" class="btn-wa">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Consultar por WhatsApp
+    </a>
+    <div class="trust">
+      <div class="trust-item">🚀 Equipo optimizado antes de enviarlo</div>
+      <div class="trust-item">🔧 Te ayudamos a instalarlo</div>
+      <div class="trust-item">✅ Garantía incluida</div>
+      <div class="trust-item">💳 Transferencia, efectivo o tarjeta</div>
+    </div>
+  `;
+}
+
+window.setPhoto = function(url, el) {
+  document.getElementById('main-photo').src = url;
+  document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+};
+
+window.cambiarCantidad = function(dir) {
+  const stock = currentProduct?.stock ?? 0;
+  cantidad = Math.max(1, Math.min(stock, cantidad + dir));
+  document.getElementById('qty-display').textContent = cantidad;
+  const precio = cleanPrice(currentProduct?.price || '0');
+  document.getElementById('total-display').textContent = fmt(precio * cantidad);
+};
+
+window.pagarConFlow = async function() {
+  const email = document.getElementById('email-input').value.trim();
+  const msg = document.getElementById('pay-msg');
+  if (!email || !email.includes('@')) {
+    msg.className='pay-msg err'; msg.textContent='Ingresa un correo válido.'; return;
+  }
+  const btn = document.getElementById('btn-pagar');
+  btn.disabled = true; btn.textContent = '⏳ Procesando...';
+  msg.className='pay-msg'; msg.textContent='';
+  const precio = cleanPrice(currentProduct.price || '0');
+  const orderId = 'RGS-' + Date.now();
+  try {
+    const res = await fetch(`${FLOW_API}/api/create-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: precio * cantidad,
+        email,
+        orderId,
+        subject: currentProduct.name + (cantidad > 1 ? ' x' + cantidad : ''),
+        urlReturn: 'https://rg-smartbox.github.io/tvbox-tienda/gracias.html',
+      }),
+    });
+    const data = await res.json();
+    if (data.redirectUrl) {
+      window.location.href = data.redirectUrl;
+    } else {
+      msg.className='pay-msg err'; msg.textContent='Error: ' + (data.error || 'No se pudo crear el pago.');
+      btn.disabled = false; btn.textContent = '💳 Pagar con Flow';
+    }
+  } catch(e) {
+    msg.className='pay-msg err'; msg.textContent='Error de conexión. Intenta de nuevo.';
+    btn.disabled = false; btn.textContent = '💳 Pagar con Flow';
+  }
+};
+</script>
+</body>
+</html>
