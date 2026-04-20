@@ -109,9 +109,10 @@
           <!-- CLIENTE -->
           <div style="margin-bottom:1.25rem;">
             <div style="font-size:13px;font-weight:500;color:var(--accent);margin-bottom:10px;">👤 Cliente</div>
-            <div style="position:relative;">
-              <input type="text" id="v-cliente-buscar" placeholder="Buscar cliente por nombre..." oninput="buscarCliente()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
-              <div id="cliente-sugerencias" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:0 0 8px 8px;z-index:100;max-height:200px;overflow-y:auto;"></div>
+            <div style="position:relative;display:flex;gap:6px;">
+              <input type="text" id="v-cliente-buscar" placeholder="Buscar cliente por nombre..." oninput="buscarCliente()" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+              <button onclick="limpiarBusqueda()" style="padding:0 12px;background:none;color:var(--muted);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:16px;">✕</button>
+              <div id="cliente-sugerencias" style="display:none;position:absolute;top:100%;left:0;right:40px;background:var(--surface2);border:1px solid var(--border);border-radius:0 0 8px 8px;z-index:100;max-height:200px;overflow-y:auto;"></div>
             </div>
             <div id="cliente-seleccionado" style="display:none;margin-top:8px;background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.2);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
               <div>
@@ -301,6 +302,12 @@ function seleccionarCliente(i) {
   document.getElementById('cs-nombre').textContent = clienteSeleccionado.nombre;
   document.getElementById('cs-detalle').textContent = clienteSeleccionado.telefono+' · '+clienteSeleccionado.direccion+', '+clienteSeleccionado.comuna;
   document.getElementById('btn-nuevo-cliente').style.display='none';
+}
+
+function limpiarBusqueda() {
+  document.getElementById('v-cliente-buscar').value='';
+  document.getElementById('cliente-sugerencias').style.display='none';
+  limpiarCliente();
 }
 
 function limpiarCliente() {
