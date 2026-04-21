@@ -261,7 +261,7 @@ function renderGrid(products, cfg) {
     const videoId = getYoutubeId(p.video || '');
     let mediaHtml = photos.length > 0
       ? `<div class="gallery">
-          ${photos.map((u,i) => `<img src="${u}" class="${i===0?'active':''}">`).join('')}
+          ${photos.map((u,i) => `<img src="${u}" class="${i===0?'active':''}" style="cursor:pointer;" onclick="abrirFoto('${u}')">`).join('')}
           ${photos.length > 1 ? `<button class="gallery-btn prev" onclick="galleryMove(this,-1)">&#8249;</button><button class="gallery-btn next" onclick="galleryMove(this,1)">&#8250;</button><div class="gallery-dots">${photos.map((_,i)=>`<span class="gallery-dot ${i===0?'active':''}"></span>`).join('')}</div>` : ''}
         </div>`
       : `<div class="gallery-placeholder">${ICONS[p.tag]||'📺'}</div>`;
@@ -297,6 +297,19 @@ onSnapshot(doc(db,'tienda','config'), snap => {
     renderGrid(psnap.exists() ? (psnap.data().lista||[]) : [], cfg);
   });
 });
+
+function abrirFoto(src) {
+  document.getElementById('modal-photo').src = src;
+  document.getElementById('photo-modal').style.display = 'flex';
+}
 </script>
+
+<!-- Photo Modal -->
+<div id="photo-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="position:relative;max-width:90vw;max-height:90vh;">
+    <img id="modal-photo" src="" style="max-width:100%;max-height:100%;border-radius:12px;object-fit:contain;cursor:pointer;">
+    <button onclick="document.getElementById('photo-modal').style.display='none'" style="position:absolute;top:-40px;right:0;font-size:28px;background:none;border:none;color:white;cursor:pointer;">✕</button>
+  </div>
+</div>
 </body>
 </html>
