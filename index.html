@@ -251,6 +251,11 @@ function cleanPrice(v) {
   return parseInt(String(v).replace(/\D/g,'')) || 0;
 }
 
+function abrirFoto(src) {
+  document.getElementById('modal-photo').src = src;
+  document.getElementById('photo-modal').style.display = 'flex';
+}
+
 function renderGrid(products, cfg) {
   const grid = document.getElementById('products-grid');
   const wa = (cfg.wa || '56912345678').replace(/[^0-9]/g,'');
@@ -297,11 +302,6 @@ onSnapshot(doc(db,'tienda','config'), snap => {
     renderGrid(psnap.exists() ? (psnap.data().lista||[]) : [], cfg);
   });
 });
-
-function abrirFoto(src) {
-  document.getElementById('modal-photo').src = src;
-  document.getElementById('photo-modal').style.display = 'flex';
-}
 </script>
 
 <!-- Photo Modal -->
