@@ -304,7 +304,14 @@ onSnapshot(doc(db,'tienda','config'), snap => {
     setTimeout(() => {
       document.querySelectorAll('.gallery img[data-photo]').forEach(img => {
         img.addEventListener('click', function() {
-          document.getElementById('modal-photo').src = this.getAttribute('data-photo');
+          const gallery = this.closest('.gallery');
+          const allPhotos = Array.from(gallery.querySelectorAll('img[data-photo]')).map(i => i.getAttribute('data-photo'));
+          const currentIndex = allPhotos.indexOf(this.getAttribute('data-photo'));
+          modalPhotos = allPhotos;
+          modalPhotoIndex = currentIndex;
+          document.getElementById('modal-photo').src = modalPhotos[modalPhotoIndex];
+          document.getElementById('modal-prev').style.display = modalPhotos.length > 1 ? 'block' : 'none';
+          document.getElementById('modal-next').style.display = modalPhotos.length > 1 ? 'block' : 'none';
           document.getElementById('photo-modal').style.display = 'flex';
         });
       });
@@ -315,10 +322,24 @@ onSnapshot(doc(db,'tienda','config'), snap => {
 
 <!-- Photo Modal -->
 <div id="photo-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="position:relative;max-width:90vw;max-height:90vh;">
+  <div style="position:relative;max-width:90vw;max-height:90vh;display:flex;align-items:center;justify-content:center;">
     <img id="modal-photo" src="" style="max-width:100%;max-height:100%;border-radius:12px;object-fit:contain;cursor:pointer;">
     <button onclick="document.getElementById('photo-modal').style.display='none'" style="position:absolute;top:-40px;right:0;font-size:28px;background:none;border:none;color:white;cursor:pointer;">✕</button>
+    <button id="modal-prev" onclick="cambiarFotoModal(-1)" style="position:absolute;left:10px;font-size:32px;background:none;border:none;color:white;cursor:pointer;display:none;">❮</button>
+    <button id="modal-next" onclick="cambiarFotoModal(1)" style="position:absolute;right:10px;font-size:32px;background:none;border:none;color:white;cursor:pointer;display:none;">❯</button>
   </div>
 </div>
+
+<script>
+let modalPhotos = [];
+let modalPhotoIndex = 0;
+
+function cambiarFotoModal(dir) {
+  modalPhotoIndex = (modalPhotoIndex + dir + modalPhotos.length) % modalPhotos.length;
+  document.getElementById('modal-photo').src = modalPhotos[modalPhotoIndex];
+  document.getElementById('modal-prev').style.display = modalPhotos.length > 1 ? 'block' : 'none';
+  document.getElementById('modal-next').style.display = modalPhotos.length > 1 ? 'block' : 'none';
+}
+</script>
 </body>
 </html>
